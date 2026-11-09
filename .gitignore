@@ -1,0 +1,44 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Temporary files and outputs
+*.log
+.rag_cache/
+outputs/
+_pieces/
+
+# Local test and starter notebooks
+test.ipynb
+relevance_scoring_rerankers.ipynb
+
+# Codex implementation plans
+codex_implementation_plan*.md
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Local private data
+data/private/
+
+# Additional Python caches
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Internal project planning
+PROJECT_PLAN.md
