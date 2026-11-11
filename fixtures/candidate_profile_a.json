@@ -1,0 +1,36 @@
+{
+  "candidate_id": "synthetic-profile-a",
+  "name": "Synthetic Profile A",
+  "summary": "Experienced AI transformation professional interested in consulting and digital transformation roles in Germany.",
+  "skills": [
+    "Project Management",
+    "Stakeholder Engagement",
+    "Process Improvement",
+    "AI Implementation"
+  ],
+  "professional_experience": [
+    {
+      "title": "AI Transformation Professional",
+      "responsibilities": [
+        "Managed AI project delivery with business stakeholders.",
+        "Led stakeholder engagement and process improvement initiatives."
+      ]
+    }
+  ],
+  "years_experience": null,
+  "education": [],
+  "desired_job_titles": ["AI Consultant", "AI Transformation Consultant", "Digital Transformation Consultant"],
+  "career_interests": ["AI Consulting", "AI Transformation", "Digital Transformation"],
+  "preferred_industries": ["consulting", "technology"],
+  "seniority_preferences": ["mid-level", "senior"],
+  "country_preferences": ["DE"],
+  "location_preferences": ["Germany"],
+  "work_model_preferences": ["remote", "hybrid"],
+  "employment_type_preferences": ["full-time"],
+  "required_preferences": {
+    "countries": ["DE"],
+    "work_models": [],
+    "employment_types": [],
+    "seniority": []
+  }
+}

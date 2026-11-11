@@ -1,0 +1,69 @@
+[
+  {
+    "job_id": "synthetic-ai-transformation-consultant",
+    "title": "AI Transformation Consultant",
+    "company": "Synthetic Advisory Group",
+    "location": "Remote",
+    "work_model": "remote",
+    "employment_type": "full-time",
+    "seniority": "Senior",
+    "description": "Lead AI project delivery and stakeholder engagement. Improve processes through AI implementation. Candidates should have senior consulting experience.",
+    "source": "synthetic",
+    "source_url": "https://example.invalid/jobs/ai-transformation-consultant",
+    "eligible_countries": ["DE"],
+    "raw_metadata": {"categories": ["Consulting", "Technology"]}
+  },
+  {
+    "job_id": "synthetic-digital-transformation-pm",
+    "title": "Digital Transformation Project Manager",
+    "company": "Synthetic Change Partners",
+    "location": "Berlin",
+    "work_model": "hybrid",
+    "employment_type": "full-time",
+    "seniority": "Mid-level",
+    "description": "Manage project delivery, stakeholder management and process optimization for digital transformation programs. Experience leading cross-functional projects is required.",
+    "source": "synthetic",
+    "source_url": "https://example.invalid/jobs/digital-transformation-pm",
+    "eligible_countries": ["DE"],
+    "raw_metadata": {"categories": ["Consulting", "Technology"]}
+  },
+  {
+    "job_id": "synthetic-junior-data-analyst",
+    "title": "Junior Data Analyst",
+    "company": "Synthetic Data Works",
+    "location": "Berlin",
+    "work_model": "onsite",
+    "employment_type": "full-time",
+    "seniority": "Entry-level",
+    "description": "Use SQL and Python for data analysis. Prepare Excel reports and data visualization dashboards for business teams.",
+    "source": "synthetic",
+    "source_url": "https://example.invalid/jobs/junior-data-analyst",
+    "eligible_countries": ["DE"],
+    "raw_metadata": {"categories": ["Analytics", "Technology"]}
+  },
+  {
+    "job_id": "synthetic-business-intelligence-analyst",
+    "title": "Business Intelligence Analyst",
+    "company": "Synthetic Metrics Lab",
+    "location": "Berlin",
+    "work_model": "hybrid",
+    "employment_type": "full-time",
+    "seniority": "Junior",
+    "description": "Build business intelligence reports and dashboards. Analyze data with SQL, Python, Excel and data visualisation tools.",
+    "source": "synthetic",
+    "source_url": "https://example.invalid/jobs/bi-analyst",
+    "eligible_countries": ["DE"],
+    "raw_metadata": {"categories": ["Analytics", "Technology"]}
+  },
+  {
+    "job_id": "synthetic-unsupported-role",
+    "title": "Regional Account Executive",
+    "company": "Synthetic Sales Co",
+    "location": "Unknown",
+    "work_model": "unknown",
+    "employment_type": "unknown",
+    "description": "Build relationships and support customer accounts.",
+    "source": "synthetic",
+    "source_url": "https://example.invalid/jobs/account-executive"
+  }
+]

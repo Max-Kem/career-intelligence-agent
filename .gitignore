@@ -29,6 +29,9 @@ codex_implementation_plan*.md
 
 # Local private data
 data/private/
+knowledge_base/raw/
+knowledge_base/processed/
+knowledge_base/review/
 
 # Additional Python caches
 .mypy_cache/
@@ -42,3 +45,5 @@ Thumbs.db
 
 # Internal project planning
 PROJECT_PLAN.md
+CAREER_INTELLIGENCE_ROADMAP.md
+reports/

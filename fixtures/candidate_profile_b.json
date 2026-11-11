@@ -1,0 +1,31 @@
+{
+  "candidate_id": "synthetic-profile-b",
+  "name": "Synthetic Profile B",
+  "summary": "Junior data analyst with initial analytics project experience, interested in analyst and business intelligence roles in Berlin.",
+  "skills": ["SQL", "Python", "Excel", "Data Visualization"],
+  "professional_experience": [
+    {
+      "title": "Junior Data Analyst",
+      "responsibilities": [
+        "Performed data analysis using SQL and Python.",
+        "Prepared Excel reports and data visualization dashboards."
+      ]
+    }
+  ],
+  "years_experience": null,
+  "education": [],
+  "desired_job_titles": ["Junior Data Analyst", "Business Intelligence Analyst"],
+  "career_interests": ["Data Analytics", "Business Intelligence"],
+  "preferred_industries": ["technology", "analytics"],
+  "seniority_preferences": ["junior", "entry-level"],
+  "country_preferences": ["DE"],
+  "location_preferences": ["Berlin"],
+  "work_model_preferences": [],
+  "employment_type_preferences": [],
+  "required_preferences": {
+    "countries": [],
+    "work_models": [],
+    "employment_types": [],
+    "seniority": []
+  }
+}
