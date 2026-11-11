@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from .models import Eligibility, EmploymentType, Job, WorkModel
+from .geography import normalize_country_code, normalize_country_list
 
 
 @dataclass(frozen=True)
@@ -36,12 +37,18 @@ class FilterResult:
 def country_eligibility(job: Job, country: str | None) -> Eligibility:
     if not country:
         return job.country_eligibility
-    wanted = country.strip().upper()
+    wanted = normalize_country_code(country)
+    if not wanted:
+        return Eligibility.UNKNOWN
     conflicts = job.raw_metadata.get("eligibility_conflicts", [])
-    if isinstance(conflicts, list) and wanted in {str(code).upper() for code in conflicts}:
+    if isinstance(conflicts, list) and wanted in {normalize_country_code(code) for code in conflicts}:
         return Eligibility.UNKNOWN
     if job.eligible_countries:
-        return Eligibility.ELIGIBLE if wanted in {c.upper() for c in job.eligible_countries} else Eligibility.INELIGIBLE
+        allowed = normalize_country_list(job.eligible_countries)
+        # Unrecognized provider values do not establish a country mismatch.
+        if not allowed:
+            return Eligibility.UNKNOWN
+        return Eligibility.ELIGIBLE if wanted in allowed else Eligibility.INELIGIBLE
     if job.country_eligibility != Eligibility.UNKNOWN:
         return job.country_eligibility
     # `country` describes the job's location; it does not prove where an

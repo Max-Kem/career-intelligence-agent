@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from ..models import Eligibility, Job, normalize_employment_type, normalize_work_model
+from ..geography import country_codes_mentioned, normalize_country_code
 from .common import BaseAdapter, ProviderError
 
 
@@ -35,17 +36,14 @@ def normalize_himalayas(data: dict[str, Any]) -> Job:
     eligible_countries: list[str] = []
     if isinstance(restrictions, list):
         for item in restrictions:
-            if isinstance(item, dict):
-                code = item.get("alpha2")
-                if isinstance(code, str) and code.strip():
-                    eligible_countries.append(code.strip().upper())
-            elif isinstance(item, str) and item.strip():
-                eligible_countries.append(item.strip().upper())
+            code = normalize_country_code(item)
+            if code and code not in eligible_countries:
+                eligible_countries.append(code)
     eligibility = Eligibility.ELIGIBLE if isinstance(restrictions, list) and not restrictions else Eligibility.UNKNOWN
     # A title can state a work location while locationRestrictions describe
     # where the applicant must live. If those facts conflict, do not treat the
     # restriction list as a confirmed rejection for that explicitly named place.
-    mentioned_countries = _mentioned_country_codes(data.get("title"))
+    mentioned_countries = country_codes_mentioned(data.get("title"))
     restriction_conflicts = sorted(mentioned_countries - set(eligible_countries)) if eligible_countries else []
     raw_seniority = data.get("seniority")
     seniority = ", ".join(str(v) for v in raw_seniority) if isinstance(raw_seniority, list) else raw_seniority
@@ -83,6 +81,7 @@ def normalize_himalayas(data: dict[str, Any]) -> Job:
             "categories": data.get("categories", []),
             "excerpt": data.get("excerpt"),
             "eligibility_conflicts": restriction_conflicts,
+            "location_restrictions_raw": restrictions,
         },
     )
 
@@ -93,16 +92,6 @@ def _number(value: Any) -> float | None:
         return number if number >= 0 else None
     except (TypeError, ValueError):
         return None
-
-
-def _mentioned_country_codes(title: Any) -> set[str]:
-    """Return explicitly named country codes from titles, without inferring from descriptions."""
-    if not isinstance(title, str):
-        return set()
-    normalized = f" {title.casefold()} "
-    if " germany " in normalized or " deutschland " in normalized:
-        return {"DE"}
-    return set()
 
 
 def _fallback_id(data: dict[str, Any]) -> str:

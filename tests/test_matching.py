@@ -261,10 +261,53 @@ def test_unknown_work_model_does_not_qualify_foreign_location_or_satisfy_remote_
     )
     foreign_result = match_candidate_to_jobs(profile, [foreign_unknown])
     remote_result = match_candidate_to_jobs(required_remote_profile, [german_unknown])
-    assert foreign_result.ranked_matches[0].geographic_status == Eligibility.UNKNOWN
+    assert foreign_result.ranked_matches == []
+    assert foreign_result.excluded_jobs[0].geographic_status == Eligibility.INELIGIBLE
+    assert "remote eligibility is not verified" in " ".join(foreign_result.excluded_jobs[0].geographic_evidence)
     assert remote_result.ranked_matches[0].geographic_status == Eligibility.ELIGIBLE
     assert remote_result.ranked_matches[0].hard_filter_status == "unknown"
     assert "Required work model cannot be verified." in remote_result.ranked_matches[0].unresolved_requirements
+
+
+def test_german_job_cities_satisfy_country_and_location_preferences_with_unknown_model():
+    profile = load_profile("candidate_profile_a.json")
+    for location in ("Düsseldorf", "Stuttgart", "Munich", "Berlin"):
+        job = make_job(title="AI Consultant", location=location, work_model=WorkModel.UNKNOWN)
+        result = match_candidate_to_jobs(profile, [job])
+        assert result.ranked_matches[0].geographic_status == Eligibility.ELIGIBLE
+        preference = next(d for d in score_job(profile, job).dimensions if d.name == "additional_preferences")
+        assert any("matches preferred location" in evidence for evidence in preference.evidence)
+
+
+def test_sanitized_german_live_report_example_recognizes_only_explicit_skills():
+    profile = load_profile("candidate_profile_a.json")
+    job = make_job(
+        title="Consultant KI & Einkauf (m/w/d)", location="Düsseldorf", work_model=WorkModel.UNKNOWN,
+        description="<p>Du setzt KI praktisch ein. Du leitest Workshops und unterstützt Kundenkommunikation sowie Beratung.</p>",
+    )
+    assert extract_job_skills(job.description or "", profile.skills) == {
+        "ai implementation", "stakeholder management",
+    }
+    result = score_job(profile, job)
+    assert result.score is not None
+    assert result.matched_skills == ["ai implementation", "stakeholder management"]
+    role = next(d for d in result.dimensions if d.name == "role_interests")
+    assert role.score is not None and role.score > 0
+    assert result.score < 100
+    assert any("KI" in evidence or "Consultant KI" in evidence for evidence in role.evidence)
+    skill_evidence = next(d for d in result.dimensions if d.name == "skills").evidence
+    assert any("setzt ki praktisch ein" in evidence.casefold() for evidence in skill_evidence)
+
+
+def test_global_or_foreign_jobs_and_missing_evidence_are_not_fabricated():
+    profile = load_profile("candidate_profile_a.json")
+    unknown = make_job(title="Consultant KI", location="Somewhere", description="Work with clients.")
+    foreign = make_job(title="AI Consultant", location="Paris", work_model=WorkModel.UNKNOWN)
+    result = match_candidate_to_jobs(profile, [unknown, foreign])
+    by_id = {match.job.job_id: match for match in result.ranked_matches}
+    assert by_id["job-1"].geographic_status == Eligibility.UNKNOWN
+    assert result.excluded_jobs[0].geographic_status == Eligibility.INELIGIBLE
+    assert result.ranked_matches[0].matched_skills == []
 
 
 def test_explicit_applicant_restriction_still_blocks_german_physical_location():

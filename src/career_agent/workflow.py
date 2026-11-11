@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import html
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TypedDict
@@ -15,6 +17,8 @@ from .filtering import FilterDiagnostics
 from .integration import CandidateDiscoveryRun, discover_candidate_jobs, derive_search_queries
 from .matching import MINIMUM_MATCH_SCORE, JobMatch, MatchingResult, match_candidate_to_jobs
 from .models import Job
+from .requirements_review import requirements_to_verify
+from .vector_store import run_knowledge_retrieval
 
 
 class WorkflowState(TypedDict, total=False):
@@ -26,6 +30,8 @@ class WorkflowState(TypedDict, total=False):
     esco_enabled: bool
     company_research_enabled: bool
     allow_live_company_research: bool
+    market_intelligence_enabled: bool
+    allow_live_market_intelligence: bool
     esco_language: str
     query_override: str | None
     query_limit: int
@@ -47,6 +53,7 @@ class WorkflowState(TypedDict, total=False):
     report_data: dict
     esco_enrichment: dict
     company_research: dict
+    market_intelligence: dict
     report_paths: dict[str, str]
     started_at: str
     completed_at: str
@@ -60,11 +67,13 @@ def build_workflow(
     *, discovery_runner: DiscoveryRunner | None = None,
     esco_client_factory: Callable[[], ESCOClient] | None = None,
     company_researcher_factory: Callable[[], TavilyCompanyResearchClient] | None = None,
+    market_intelligence_runner: Callable[[str], dict] | None = None,
 ):
     """Create the research-to-report graph; discovery is injectable for tests."""
     run_discovery = discovery_runner or discover_candidate_jobs
     make_esco_client = esco_client_factory or ESCOClient
     make_company_researcher = company_researcher_factory or TavilyCompanyResearchClient
+    retrieve_market = market_intelligence_runner or (lambda question: run_knowledge_retrieval(question, live=True))
     builder = StateGraph(WorkflowState)
     builder.add_node("load_candidate", load_candidate_node)
     builder.add_node("discover_jobs", _discovery_node(run_discovery))
@@ -75,6 +84,7 @@ def build_workflow(
     builder.add_node("note_no_recommendations", note_no_recommendations_node)
     builder.add_node("enrich_esco", _esco_node(make_esco_client))
     builder.add_node("research_companies", _company_research_node(make_company_researcher))
+    builder.add_node("retrieve_market_intelligence", _market_intelligence_node(retrieve_market))
     builder.add_node("generate_report", generate_report_node)
     builder.add_node("finalize", finalize_node)
 
@@ -93,7 +103,8 @@ def build_workflow(
     })
     builder.add_edge("note_no_recommendations", "enrich_esco")
     builder.add_edge("enrich_esco", "research_companies")
-    builder.add_edge("research_companies", "generate_report")
+    builder.add_edge("research_companies", "retrieve_market_intelligence")
+    builder.add_edge("retrieve_market_intelligence", "generate_report")
     builder.add_edge("generate_report", "finalize")
     builder.add_edge("finalize", END)
     return builder.compile()
@@ -384,6 +395,105 @@ def _empty_company_research(status: str) -> dict:
     }
 
 
+def _market_questions(candidate: CandidateProfile, recommendations: list[JobMatch]) -> list[str]:
+    roles: list[str] = []
+    for role in [*candidate.desired_job_titles, *(match.job.title for match in recommendations[:2])]:
+        if role and role.casefold() not in {item.casefold() for item in roles}:
+            roles.append(role)
+        if len(roles) >= 3:
+            break
+    role_text = ", ".join(roles) or "the candidate's target roles"
+    skills = list(dict.fromkeys(candidate.skills))[:4]
+    gaps: list[str] = []
+    for match in recommendations[:3]:
+        for gap in match.gaps:
+            if gap not in gaps:
+                gaps.append(gap)
+    skills_text = ", ".join(skills) if skills else "digital and technical skills"
+    gap_text = "; ".join(gaps[:2])
+    return [
+        f"In Germany, what labour-market and qualification trends affect {role_text} and skills such as {skills_text}?",
+        f"How is AI changing occupational tasks and employment relevant to {role_text}?",
+        f"What digital skills, ICT specialist demand, and upskilling pathways are relevant in Germany for {role_text}?"
+        + (f" Consider these currently identified candidate-job gaps: {gap_text}." if gap_text else ""),
+    ]
+
+
+def _market_intelligence_node(retrieve: Callable[[str], dict]):
+    def retrieve_node(state: WorkflowState) -> dict:
+        if state.get("offline", False) and not state.get("allow_live_market_intelligence", False):
+            return _mark(state, "retrieve_market_intelligence", market_intelligence=_empty_market_intelligence("skipped_offline"))
+        if not state.get("market_intelligence_enabled", False):
+            return _mark(state, "retrieve_market_intelligence", market_intelligence=_empty_market_intelligence("skipped_disabled"))
+        candidate = state.get("candidate")
+        if candidate is None:
+            return _mark(state, "retrieve_market_intelligence", market_intelligence=_empty_market_intelligence("skipped_no_candidate"))
+
+        questions = _market_questions(candidate, state.get("recommendations", []))
+        per_query: list[dict] = []
+        errors: list[str] = []
+        evidence_by_id: dict[str, dict] = {}
+        for question in questions:
+            try:
+                outcome = retrieve(question)
+                matches = outcome.get("matches", []) if isinstance(outcome, dict) else []
+                per_query.append({"question": question, "status": "succeeded" if matches else "no_results", "result_count": len(matches)})
+                for item in matches[:3]:
+                    key = item.get("chunk_id")
+                    if not key or key == "Not provided":
+                        key = f"{item.get('document_title')}|{item.get('page_number')}|{item.get('excerpt')}"
+                    if key in evidence_by_id:
+                        evidence_by_id[key]["matched_queries"].append(question)
+                    else:
+                        evidence_by_id[key] = {**item, "matched_queries": [question]}
+            except Exception as exc:
+                error = f"{type(exc).__name__}: retrieval request failed."
+                errors.append(error)
+                per_query.append({"question": question, "status": "unavailable", "result_count": 0, "error": error})
+        evidence = list(evidence_by_id.values())[:9]
+        if errors and evidence:
+            status = "partial"
+        elif errors:
+            status = "unavailable"
+        elif evidence:
+            status = "succeeded"
+        else:
+            status = "no_results"
+        outcome = {
+            "status": status,
+            "source": "Pinecone career-market-knowledge / career-market-knowledge-v1",
+            "query_count": len(questions),
+            "query_limit": 3,
+            "questions": questions,
+            "query_results": per_query,
+            "evidence": evidence,
+            "similarity_note": "Similarity scores indicate semantic closeness to a query, not factual confidence.",
+            "candidate_context": {
+                "target_roles": candidate.desired_job_titles,
+                "listed_skills": candidate.skills,
+                "matching_gaps": list(dict.fromkeys(gap for match in state.get("recommendations", []) for gap in match.gaps))[:8],
+            },
+            "errors": errors,
+        }
+        warnings = list(state.get("warnings", []))
+        nonfatal_errors = list(state.get("nonfatal_errors", []))
+        if status in {"partial", "unavailable"}:
+            warnings.append(f"Labour-market intelligence retrieval was {status}; report generation continued without fabricated replacement evidence.")
+            nonfatal_errors.extend(f"Market intelligence: {message}" for message in errors)
+        return _mark(state, "retrieve_market_intelligence", market_intelligence=outcome,
+                     warnings=warnings, nonfatal_errors=nonfatal_errors)
+    return retrieve_node
+
+
+def _empty_market_intelligence(status: str) -> dict:
+    return {
+        "status": status, "source": "Pinecone career-market-knowledge / career-market-knowledge-v1",
+        "query_count": 0, "query_limit": 3, "questions": [], "query_results": [],
+        "evidence": [], "similarity_note": "Similarity scores indicate semantic closeness to a query, not factual confidence.",
+        "candidate_context": {}, "errors": [],
+    }
+
+
 def _empty_esco_result(status: str) -> dict:
     return {
         "status": status, "language": ESCO_LANGUAGE, "lookup_count": 0,
@@ -399,12 +509,119 @@ def generate_report_node(state: WorkflowState) -> dict:
     return _mark(state, "generate_report", report_markdown=markdown, report_data=report_data)
 
 
+def _normalize_citation_integer(value):
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int) and value > 0:
+        return value
+    if isinstance(value, float) and value.is_integer() and value > 0:
+        return int(value)
+    if isinstance(value, str) and value.strip().isdigit() and int(value.strip()) > 0:
+        return int(value.strip())
+    return None
+
+
+def _personalized_intelligence(market: dict, candidate: CandidateProfile | None, recommendations: list[JobMatch]) -> dict:
+    """Create conservative evidence-linked implications; never add skills or market claims."""
+    if not market.get("evidence"):
+        return {
+            "status": "unavailable",
+            "message": "Personalized career intelligence is unavailable because no retrieved market evidence was available.",
+            "insights": [],
+            "limitations": ["No retrieved evidence was available; no market conclusions or new skill gaps were generated."],
+        }
+    roles = candidate.desired_job_titles if candidate else []
+    listed_skills = candidate.skills if candidate else []
+    existing_gaps = list(dict.fromkeys(gap for match in recommendations for gap in match.gaps))
+    role_text = ", ".join(roles[:3]) or "the candidate's target roles"
+    insights: list[dict] = []
+    seen_topics: set[tuple[str, str]] = set()
+    incomplete: list[str] = []
+    for evidence in market.get("evidence", []):
+        excerpt = evidence.get("excerpt")
+        title = evidence.get("document_title")
+        publisher = evidence.get("publisher")
+        year = _normalize_citation_integer(evidence.get("publication_year"))
+        page = _normalize_citation_integer(evidence.get("page_number"))
+        url = evidence.get("source_url")
+        scope = evidence.get("geographic_scope")
+        if not (isinstance(excerpt, str) and excerpt.strip() and isinstance(title, str) and title not in {"", "Not provided"}
+                and isinstance(publisher, str) and publisher not in {"", "Not provided"} and year and page
+                and isinstance(url, str) and url.startswith(("https://", "http://"))):
+            incomplete.append(str(evidence.get("chunk_id", "retrieved record")))
+            continue
+        text = excerpt.casefold()
+        if any(term in text for term in ("generative ai", "genai", "occupation", "automation", "occupational task")):
+            topic = "AI and occupational change"
+        elif any(term in text for term in ("job openings", "qualification", "labour force", "employment forecast")):
+            topic = "Qualifications and labour-market trends"
+        elif any(term in text for term in ("ict specialist", "digital skills", "digital skill", "upskilling", "training", "skills development")):
+            topic = "Digital skills and workforce development"
+        else:
+            topic = "Digital transformation context"
+        scope_key = scope if scope in {"Germany_focused", "international_global"} else "unknown_scope"
+        topic_key = (topic, scope_key)
+        if topic_key in seen_topics:
+            continue
+        seen_topics.add(topic_key)
+        citation = {
+            "document_title": title, "publisher": publisher, "publication_year": year,
+            "page_number": page, "source_url": url,
+            "geographic_scope": scope if scope in {"Germany_focused", "international_global"} else "Not provided",
+        }
+        if citation["geographic_scope"] == "international_global":
+            implication = f"For {role_text}, this is international context on occupational change; it does not establish Germany-specific demand or individual suitability."
+            next_step = "Use this as global context, then check Germany-focused sources and current target-role postings before making a local career decision."
+        elif citation["geographic_scope"] == "Germany_focused":
+            implication = f"This Germany-focused finding is relevant context for {role_text}, but it does not establish that a specific vacancy exists or confirm candidate fit."
+            next_step = f"Compare the cited finding with current postings for {role_text}; record only requirements they state explicitly."
+        else:
+            implication = f"This source provides career context for {role_text}, but its geographic scope is not verified. Do not use it alone for a Germany-specific conclusion."
+            next_step = "Confirm geographic relevance in a source with a verified country scope before applying this finding locally."
+        matched_skills = [skill for skill in listed_skills if skill.casefold() in text]
+        gap_terms = []
+        for gap in existing_gaps:
+            found = re.search(r"Job mentions (.+?), which is not listed in the candidate profile", gap, flags=re.IGNORECASE)
+            term = found.group(1).strip(" .") if found else None
+            if term and term.casefold() in text and term not in gap_terms:
+                gap_terms.append(term)
+        if matched_skills:
+            implication += f" The excerpt explicitly mentions candidate-listed skill(s) {', '.join(matched_skills[:3])}; this is context, not proof of proficiency or employer demand."
+        if gap_terms:
+            implication += f" It also explicitly mentions currently reported match gap(s) {', '.join(gap_terms[:3])}; validate these against target postings before prioritizing development."
+            next_step = f"Check whether {', '.join(gap_terms[:3])} recur in current postings for {role_text}, then decide whether development is useful."
+        elif existing_gaps:
+            implication += " The excerpt does not explicitly mention the existing matching gaps, so it does not validate them."
+        elif recommendations:
+            implication += " The matching results recorded no skill gaps; this finding does not create a new gap."
+        insights.append({
+            "topic": topic, "source_finding": excerpt,
+            "candidate_implication": implication, "suggested_next_step": next_step,
+            "citation": citation,
+        })
+        if len(insights) >= 4:
+            break
+    if not insights:
+        return {
+            "status": "unavailable",
+            "message": "Personalized career intelligence is unavailable because retrieved evidence had incomplete citation metadata that could not be traced safely.",
+            "insights": [],
+            "limitations": [f"Incomplete citation metadata in {len(incomplete)} retrieved record(s); those records were not used to generate personalized claims."],
+        }
+    limitations = ["Implications and next steps are deterministic suggestions, not additional source findings or a suitability score."]
+    if incomplete:
+        limitations.append(f"{len(incomplete)} retrieved record(s) with incomplete citation metadata were omitted from personalized insights.")
+    return {"status": "available", "message": None, "insights": insights, "limitations": limitations}
+
+
 def create_report(state: WorkflowState) -> tuple[str, dict]:
     candidate = state.get("candidate")
     discovery = state.get("discovery")
     matching = state.get("matching")
     recommendations = state.get("recommendations", [])
     provider_diagnostics = state.get("provider_diagnostics", {})
+    market_intelligence = state.get("market_intelligence", _empty_market_intelligence("skipped"))
+    personalized_intelligence = _personalized_intelligence(market_intelligence, candidate, recommendations)
     started_at = state.get("started_at") or datetime.now(timezone.utc).isoformat()
     scope = {
         "queries": state.get("search_queries", []),
@@ -412,6 +629,8 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         "offline": state.get("offline", False),
         "allow_live_esco": state.get("allow_live_esco", False),
         "allow_live_company_research": state.get("allow_live_company_research", False),
+        "market_intelligence_enabled": state.get("market_intelligence_enabled", False),
+        "allow_live_market_intelligence": state.get("allow_live_market_intelligence", False),
         "job_data_source": "synthetic_fixtures" if state.get("offline", False) else "live_providers",
         "provider_diagnostics": provider_diagnostics,
     }
@@ -420,10 +639,14 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         "search_scope": scope,
         "discovered_jobs": len(discovery.jobs) if discovery else 0,
         "evaluated_jobs": len(matching.ranked_matches) + len(matching.excluded_jobs) if matching else 0,
-        "recommendations": [_serialize_match(match) for match in recommendations],
-        "non_recommendations": _serialize_non_recommendations(matching),
+        "score_interpretation": "Indicative alignment based on available profile and job evidence; not hiring probability or verified qualification.",
+        "recommendations": [_serialize_match(match, candidate) for match in recommendations],
+        "potential_matches_requiring_review": _potential_matches_requiring_review(matching, candidate),
+        "non_recommendations": _serialize_non_recommendations(matching, candidate),
         "esco_enrichment": state.get("esco_enrichment", _empty_esco_result("skipped")),
         "company_research": state.get("company_research", _empty_company_research("skipped")),
+        "market_intelligence": market_intelligence,
+        "personalized_career_intelligence": personalized_intelligence,
         "workflow": {
             "status": state.get("workflow_status", "running"),
             "started_at": started_at,
@@ -539,12 +762,87 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         for uncertainty in company_result.get("uncertainties", []):
             lines.append(f"- Uncertainty: {uncertainty}")
         lines.append("")
-    lines.extend(["", "## Recommendations", ""])
+    market = report_data["market_intelligence"]
+    lines.extend([
+        "## Labour-market intelligence", "",
+        f"- Retrieval status: {market.get('status', 'skipped')}",
+        f"- Queries: {market.get('query_count', 0)} (maximum {market.get('query_limit', 3)} per run)",
+        f"- Source: {market.get('source', 'Pinecone knowledge base')}",
+        f"- Similarity: {market.get('similarity_note', 'Scores are not factual confidence.')}",
+    ])
+    context = market.get("candidate_context", {})
+    roles = context.get("target_roles", [])
+    skills = context.get("listed_skills", [])
+    gaps = context.get("matching_gaps", [])
+    if roles or skills or gaps:
+        lines.append(f"- Candidate connection: queries were scoped to target roles ({', '.join(roles) or 'not specified'}), listed skills ({', '.join(skills[:6]) or 'not specified'}), and matching gaps where available.")
+        if gaps:
+            lines.append(f"- Matching engine gaps for comparison: {'; '.join(gaps[:4])}")
+    lines.append("")
+    lines.extend(["### Personalized Career Intelligence", "", f"- Status: {personalized_intelligence['status']}"])
+    if personalized_intelligence.get("message"):
+        lines.extend([personalized_intelligence["message"], ""])
+    for insight in personalized_intelligence.get("insights", []):
+        citation = insight["citation"]
+        source_title = citation["document_title"]
+        source_link = f"[{source_title}]({citation['source_url']})"
+        page = _normalize_citation_integer(citation.get("page_number"))
+        scope = {"international_global": "international/global", "Germany_focused": "Germany-focused"}.get(citation.get("geographic_scope"), "geographic scope unverified")
+        reference = f"{source_link}, {citation['publisher']} ({citation['publication_year']}), PDF page {page} — {scope}"
+        lines.extend([
+            f"**{insight['topic']}**",
+            f"- Source finding: “{insight['source_finding']}” ({reference}).",
+            f"- Candidate implication (reasoned): {insight['candidate_implication']} ({reference}).",
+            f"- Suggested next step: {insight['suggested_next_step']}",
+            "",
+        ])
+    for limitation in personalized_intelligence.get("limitations", []):
+        lines.append(f"- Limitation: {limitation}")
+    if personalized_intelligence.get("limitations"):
+        lines.append("")
+    if market.get("status") in {"skipped_offline", "skipped_disabled", "skipped_no_candidate"}:
+        lines.append("Market evidence retrieval was not run; no findings are inferred.")
+    elif not market.get("evidence"):
+        lines.append("No market evidence was returned. No replacement findings or citations were generated.")
+    for index, evidence in enumerate(market.get("evidence", []), start=1):
+        title = evidence.get("document_title", "Source title unavailable")
+        publisher = evidence.get("publisher", "Publisher unavailable")
+        year = evidence.get("publication_year", "Year unavailable")
+        if isinstance(year, float) and year.is_integer():
+            year = int(year)
+        page = _normalize_citation_integer(evidence.get("page_number")) or "Not provided"
+        if page == "Not provided" and evidence.get("page_start") is not None:
+            page = str(evidence["page_start"]) if evidence.get("page_end") in (None, evidence["page_start"]) else f"{evidence['page_start']}-{evidence['page_end']}"
+        url = evidence.get("source_url")
+        source = f"[{title}]({url})" if isinstance(url, str) and url.startswith(("http://", "https://")) else title
+        scope_label = {"international_global": "Global/international", "Germany_focused": "Germany-focused"}.get(evidence.get("geographic_scope"), evidence.get("geographic_scope", "Scope not provided"))
+        lines.extend([
+            f"### {index}. {source}",
+            f"- Publisher/year: {publisher} ({year}); PDF page {page}",
+            f"- Evidence scope: {scope_label}",
+            f"- Retrieved for: {'; '.join(evidence.get('matched_queries', []))}",
+            f"- Similarity score: {evidence.get('score', 'Not provided')}",
+            f"- Excerpt: {evidence.get('excerpt', 'Text unavailable')}",
+            "",
+        ])
+    for error in market.get("errors", []):
+        lines.append(f"- Retrieval issue: {error}")
+    if market.get("errors"):
+        lines.append("")
+    lines.extend(["", "## Recommendations", "", f"**Score interpretation:** {report_data['score_interpretation']}", ""])
     if recommendations:
         for index, match in enumerate(recommendations, start=1):
-            lines.extend(_match_markdown(index, match))
+            lines.extend(_match_markdown(index, match, candidate))
     else:
         lines.append("No positions qualified as recommendations.")
+    potential_matches = report_data["potential_matches_requiring_review"]
+    if potential_matches:
+        lines.extend(["", "## Potential matches requiring review", "", "These jobs did not qualify as recommendations. Scores indicate evidence alignment only; review the unresolved support before treating them as suitable.", ""])
+        for item in potential_matches:
+            job = item["job"]
+            url = job.get("source_url")
+            title = f"[{job['title']}]({url})" if url else job["title"]
+            lines.append(f"- **{title} — {job.get('company', 'Unknown company')}**: {item['score']}/100; {item['support_status']}. {'; '.join(item['reasons'][:3])}")
     if len(recommendations) < 5:
         lines.extend(["", "### Why fewer than five?", ""])
         if not discovery or not discovery.jobs:
@@ -562,7 +860,7 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
     return markdown, report_data
 
 
-def _serialize_match(match: JobMatch) -> dict:
+def _serialize_match(match: JobMatch, candidate: CandidateProfile | None = None) -> dict:
     seniority = next((dim for dim in match.dimensions if dim.name == "seniority_qualifications"), None)
     return {
         "job": match.job.model_dump(mode="json"),
@@ -577,10 +875,11 @@ def _serialize_match(match: JobMatch) -> dict:
         "seniority_status": "unknown" if seniority is None or seniority.score is None else seniority.score,
         "uncertainties": match.unresolved_requirements,
         "warnings": match.recommendation_warnings,
+        "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
     }
 
 
-def _serialize_non_recommendations(matching: MatchingResult | None) -> list[dict]:
+def _serialize_non_recommendations(matching: MatchingResult | None, candidate: CandidateProfile | None = None) -> list[dict]:
     if matching is None:
         return []
     selected = {match.job.job_id for match in matching.top_matches}
@@ -591,6 +890,8 @@ def _serialize_non_recommendations(matching: MatchingResult | None) -> list[dict
         reasons = [*match.unresolved_requirements, *match.recommendation_blockers]
         if match.score is None or match.support_status.value != "sufficient":
             reasons.append(f"Evidence status: {match.support_status.value}.")
+        if match.support_status.value == "provisional" and match.evidence_coverage < 70:
+            reasons.append(f"Evidence coverage is {match.evidence_coverage}%; current support remains provisional.")
         if match.score is not None and match.score < MINIMUM_MATCH_SCORE:
             reasons.append(f"Score {match.score} is below the existing {MINIMUM_MATCH_SCORE}/100 recommendation threshold.")
         if not reasons:
@@ -599,6 +900,7 @@ def _serialize_non_recommendations(matching: MatchingResult | None) -> list[dict
             "job": match.job.model_dump(mode="json"), "score": match.score,
             "evidence_coverage": match.evidence_coverage, "support_status": match.support_status.value,
             "reasons": reasons, "gaps": match.gaps, "warnings": match.recommendation_warnings,
+            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
         })
     items.extend({
         "job": item.job.model_dump(mode="json"), "score": item.score,
@@ -608,7 +910,30 @@ def _serialize_non_recommendations(matching: MatchingResult | None) -> list[dict
     return items
 
 
-def _match_markdown(index: int, match: JobMatch) -> list[str]:
+def _potential_matches_requiring_review(matching: MatchingResult | None, candidate: CandidateProfile | None) -> list[dict]:
+    if matching is None:
+        return []
+    selected = {match.job.job_id for match in matching.top_matches}
+    result = []
+    for match in matching.ranked_matches:
+        if (match.job.job_id in selected or match.score is None or match.score < MINIMUM_MATCH_SCORE
+                or (match.support_status.value == "sufficient" and not match.recommendation_blockers)):
+            continue
+        reasons = [*match.unresolved_requirements, *match.recommendation_blockers]
+        if match.support_status.value != "sufficient":
+            reasons.append(f"Evidence status: {match.support_status.value}.")
+        if match.support_status.value == "provisional" and match.evidence_coverage < 70:
+            reasons.append(f"Evidence coverage is {match.evidence_coverage}%; current support remains provisional.")
+        result.append({
+            "job": match.job.model_dump(mode="json"), "score": match.score,
+            "evidence_coverage": match.evidence_coverage, "support_status": match.support_status.value,
+            "reasons": list(dict.fromkeys(reasons)),
+            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
+        })
+    return result
+
+
+def _match_markdown(index: int, match: JobMatch, candidate: CandidateProfile | None = None) -> list[str]:
     job = match.job
     seniority = next((dim for dim in match.dimensions if dim.name == "seniority_qualifications"), None)
     lines = [
@@ -624,6 +949,15 @@ def _match_markdown(index: int, match: JobMatch) -> list[str]:
         f"- Seniority: {'; '.join(seniority.evidence) if seniority and seniority.evidence else 'unknown or unsupported'}",
         f"- Uncertainties: {'; '.join(match.unresolved_requirements) or 'none recorded'}",
     ]
+    requirements = requirements_to_verify(job.description or "", candidate)
+    if requirements:
+        lines.append("- Requirements to verify:")
+        for requirement in requirements:
+            lines.append(
+                f"  - {requirement['requirement']} ({requirement['requirement_type']}; "
+                f"candidate evidence: {requirement['candidate_evidence_status']}). "
+                f"{requirement['candidate_evidence']}"
+            )
     if match.recommendation_warnings:
         lines.append(f"- Considerations: {'; '.join(match.recommendation_warnings)}")
     lines.append("")
@@ -642,6 +976,8 @@ def _report_mode(scope: dict) -> str:
         modes.append("live ESCO enrichment")
     if scope["allow_live_company_research"]:
         modes.append("live Tavily company research")
+    if scope.get("allow_live_market_intelligence"):
+        modes.append("live Pinecone market retrieval")
     return " + ".join(modes) if len(modes) > 1 else "offline fixture (synthetic job data)"
 
 

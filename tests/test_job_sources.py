@@ -22,6 +22,18 @@ def test_arbeitnow_normalization_and_unknown_false_remote():
     assert job.raw_metadata["tags"] == ["AI"]
 
 
+@pytest.mark.parametrize("location", ["Düsseldorf", "Stuttgart", "Munich, Germany"])
+def test_arbeitnow_recognizes_explicit_german_physical_location(location):
+    job = normalize_arbeitnow({"title": "Consultant", "location": location, "remote": False})
+    assert job.country == "DE"
+    assert job.work_model == WorkModel.UNKNOWN
+
+
+def test_arbeitnow_remote_location_does_not_become_applicant_country_eligibility():
+    job = normalize_arbeitnow({"title": "AI Consultant", "location": "Berlin", "remote": True})
+    assert job.country is None
+
+
 def test_arbeitnow_empty_and_malformed_entries_are_safe():
     job = normalize_arbeitnow({"title": None, "job_types": "odd", "tags": "bad"})
     assert job.title == "Untitled job"
@@ -61,6 +73,26 @@ def test_himalayas_germany_restriction_is_eligible_for_germany():
     assert job.eligible_countries == ["DE"]
     assert country_eligibility(job, "DE") == Eligibility.ELIGIBLE
     assert filter_jobs([job], country="DE") == [job]
+
+
+@pytest.mark.parametrize("restriction", ["GERMANY", "Germany", "DEU", {"name": "Germany"}, {"slug": "germany"}])
+def test_himalayas_country_restrictions_normalize_provider_spellings(restriction):
+    job = normalize_himalayas({"title": "AI Consultant", "locationRestrictions": [restriction]})
+    assert job.eligible_countries == ["DE"]
+    assert country_eligibility(job, "GERMANY") == Eligibility.ELIGIBLE
+
+
+def test_unrecognized_restriction_does_not_become_confirmed_country_mismatch():
+    job = Job(job_id="x", title="Remote Analyst", source="test", eligible_countries=["Europe-wide"])
+    assert country_eligibility(job, "DE") == Eligibility.UNKNOWN
+
+
+def test_job_model_canonicalizes_country_fields_and_keeps_unknown_values():
+    normalized = Job(job_id="normalized", title="Role", source="test", country="GERMANY", eligible_countries=["france"])
+    unresolved = Job(job_id="unresolved", title="Role", source="test", country="Central Europe")
+    assert normalized.country == "DE"
+    assert normalized.eligible_countries == ["FR"]
+    assert unresolved.country == "Central Europe"
 
 
 def test_himalayas_other_country_restriction_is_ineligible_unless_title_conflicts():

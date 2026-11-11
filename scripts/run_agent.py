@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from career_agent.workflow import build_workflow  # noqa: E402
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=("a", "b"), default="a")
     parser.add_argument("--query", help="Optional single search query override.")
@@ -23,20 +23,18 @@ def main() -> int:
     parser.add_argument("--offline", action="store_true", help="Use normalized fixture jobs; do not call APIs.")
     parser.add_argument(
         "--allow-live-esco", action="store_true",
-        help="With --offline, allow bounded live ESCO lookups for selected fixture-job recommendations.",
+        help="With --offline, allow bounded live ESCO lookups; also accepted in live discovery runs.",
     )
     parser.add_argument(
         "--allow-live-company-research", action="store_true",
-        help="With --offline, allow bounded live Tavily research for selected fixture-job recommendations.",
+        help="With --offline, allow bounded live Tavily research; also accepted in live discovery runs.",
     )
     parser.add_argument("--no-esco", action="store_true", help="Skip ESCO lookups.")
     parser.add_argument("--no-company-research", action="store_true", help="Disable Tavily company research.")
+    parser.add_argument("--no-market-intelligence", action="store_true", help="Disable Pinecone labour-market evidence retrieval.")
+    parser.add_argument("--allow-live-rag", action="store_true", help="Opt in to bounded, read-only OpenAI/Pinecone retrieval in either offline or live discovery mode.")
     parser.add_argument("--esco-language", default="en", help="Language for ESCO concept labels (default: en).")
-    args = parser.parse_args()
-    if args.allow_live_esco and not args.offline:
-        parser.error("--allow-live-esco requires --offline")
-    if args.allow_live_company_research and not args.offline:
-        parser.error("--allow-live-company-research requires --offline")
+    args = parser.parse_args(argv)
     if args.allow_live_company_research and args.no_company_research:
         parser.error("--allow-live-company-research cannot be combined with --no-company-research")
     if args.allow_live_esco and args.no_esco:
@@ -47,6 +45,11 @@ def main() -> int:
         parser.error("--pages must be between 1 and 5")
     if not 1 <= args.top_n <= 5:
         parser.error("--top-n must be between 1 and 5")
+
+    if not args.offline or args.allow_live_rag:
+        from dotenv import load_dotenv
+
+        load_dotenv(ROOT / ".env", override=False)
 
     result = build_workflow().invoke({
         "profile_name": args.profile,
@@ -60,6 +63,8 @@ def main() -> int:
         "esco_enabled": not args.no_esco,
         "company_research_enabled": not args.no_company_research,
         "allow_live_company_research": args.allow_live_company_research,
+        "market_intelligence_enabled": args.allow_live_rag and not args.no_market_intelligence,
+        "allow_live_market_intelligence": args.allow_live_rag,
         "esco_language": args.esco_language,
     })
     print(f"Workflow status: {result.get('workflow_status', 'unknown')}")

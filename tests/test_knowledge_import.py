@@ -190,6 +190,26 @@ def test_approved_chunks_embed_and_upsert_only_to_knowledge_namespace(local_sour
     assert "CC BY 4.0" in record["rights_status"]
 
 
+def test_already_indexed_ilo_record_cannot_be_reuploaded(local_source):
+    import hashlib
+
+    processed, approval_path, _ = local_source
+    indexed_id = next(iter(importer.ALREADY_INDEXED_CHUNK_IDS))
+    text = "This ILO passage has already been imported and must not be uploaded twice."
+    chunk = {"chunk_id": indexed_id, "document_id": importer.ILO_DOCUMENT_ID, "page_number": 4, "text": text}
+    (processed / importer.ILO_CHUNK_FILE).write_text(json.dumps(chunk) + "\n", encoding="utf-8")
+    approval = json.loads(approval_path.read_text(encoding="utf-8"))
+    entry = approval["candidates"][0]
+    entry.update({"chunk_id": indexed_id, "page_number": 4, "text_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest()})
+    approval["candidates"] = [entry]
+    approval_path.write_text(json.dumps(approval), encoding="utf-8")
+    _approve(approval_path)
+
+    plan = importer.build_import_plan(processed, approval_path)
+    assert plan["approved_count"] == 0
+    assert "already_indexed_do_not_reupload" in plan["rejected"][0]["reasons"]
+
+
 def test_invalid_embedding_dimension_stops_before_pinecone(local_source):
     processed, approval_path, _ = local_source
     _approve(approval_path)

@@ -4,7 +4,8 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import urljoin
 
-from ..models import EmploymentType, Job, normalize_employment_type, normalize_work_model
+from ..models import EmploymentType, Job, WorkModel, normalize_employment_type, normalize_work_model
+from ..geography import country_from_location
 from .common import BaseAdapter, ProviderError
 
 
@@ -54,14 +55,18 @@ def normalize_arbeitnow(data: dict[str, Any]) -> Job:
     tags = data.get("tags") if isinstance(data.get("tags"), list) else []
     url = data.get("url") if isinstance(data.get("url"), str) else None
     source_id = data.get("slug") or data.get("id") or url
+    location = data.get("location") or "Unknown"
+    work_model = normalize_work_model(data.get("remote"))
     return Job(
         job_id=f"arbeitnow:{source_id or url or _fallback_id(data)}",
         provider_id=str(source_id) if source_id is not None else None,
         title=data.get("title") or "Untitled job",
         company=data.get("company_name") or "Unknown company",
-        location=data.get("location") or "Unknown",
-        country=None,
-        work_model=normalize_work_model(data.get("remote")),
+        location=location,
+        # A named physical city can establish a country. A remote listing's
+        # city-like text is not applicant eligibility, so leave it unassigned.
+        country=country_from_location(location) if work_model != WorkModel.REMOTE else None,
+        work_model=work_model,
         employment_type=employment,
         description=data.get("description") if isinstance(data.get("description"), str) else None,
         source="arbeitnow",

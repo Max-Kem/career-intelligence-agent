@@ -25,6 +25,15 @@ ILO_DOCUMENT_ID = "ilo_generative_ai_jobs_2025"
 ILO_CHUNK_FILE = f"{ILO_DOCUMENT_ID}.chunks.jsonl"
 ILO_LICENSE = "CC BY 4.0"
 MAX_LIVE_CHUNKS = 20
+ALREADY_INDEXED_CHUNK_IDS = frozenset({
+    "ilo_generative_ai_jobs_2025-p0014-c0001-38187f3a7d1b",
+    "ilo_generative_ai_jobs_2025-p0041-c0003-4c72cf311482",
+    "ilo_generative_ai_jobs_2025-p0043-c0001-bc102c020a99",
+    "ilo_generative_ai_jobs_2025-p0047-c0003-1ce0ddcafa11",
+    "ilo_generative_ai_jobs_2025-p0047-c0004-37fb75e5020c",
+    "ilo_generative_ai_jobs_2025-p0050-c0002-6b02906aa496",
+    "ilo_generative_ai_jobs_2025-p0050-c0003-e2a70bcc99a3",
+})
 TOKEN_ESTIMATE_CHARS_PER_TOKEN = 4
 EMBEDDING_USD_PER_MILLION_TOKENS = 0.02
 EMBEDDING_PRICE_SOURCE = "https://developers.openai.com/api/docs/models/text-embedding-3-small"
@@ -242,6 +251,8 @@ def build_import_plan(processed_dir: str | Path, approval_path: str | Path) -> d
             continue
         chunk_id = entry.get("chunk_id")
         reasons: list[str] = []
+        if chunk_id in ALREADY_INDEXED_CHUNK_IDS:
+            reasons.append("already_indexed_do_not_reupload")
         matches = source_by_id.get(chunk_id, [])
         if not isinstance(chunk_id, str) or not chunk_id:
             reasons.append("missing_chunk_id")

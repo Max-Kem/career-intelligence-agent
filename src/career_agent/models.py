@@ -6,6 +6,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from .geography import normalize_country_code
+
 
 class WorkModel(str, Enum):
     REMOTE = "remote"
@@ -72,6 +74,26 @@ class Job(BaseModel):
     @classmethod
     def normalize_optional_text(cls, value: Any) -> str | None:
         return _clean(value)
+
+    @field_validator("country", mode="before")
+    @classmethod
+    def normalize_country(cls, value: Any) -> str | None:
+        cleaned = _clean(value)
+        return normalize_country_code(cleaned) or cleaned
+
+    @field_validator("eligible_countries", mode="before")
+    @classmethod
+    def normalize_eligible_countries(cls, value: Any) -> list[str]:
+        if not isinstance(value, list):
+            return []
+        normalized: list[str] = []
+        for item in value:
+            cleaned = _clean(item)
+            canonical = normalize_country_code(cleaned) if cleaned else None
+            retained = canonical or cleaned
+            if retained and retained not in normalized:
+                normalized.append(retained)
+        return normalized
 
 
 def normalize_work_model(value: Any) -> WorkModel:

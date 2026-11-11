@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .candidate import CandidateProfile
 from .filtering import country_eligibility
+from .geography import country_from_location, normalize_country_code
 from .models import Eligibility, EmploymentType, Job, WorkModel
 
 
@@ -88,10 +89,10 @@ class MatchingResult:
 
 # Explicit aliases only: canonical term -> variants seen in profiles or job text.
 SKILL_SYNONYMS: dict[str, tuple[str, ...]] = {
-    "project management": ("project management", "project manager", "project coordination", "project delivery", "deliver projects"),
-    "stakeholder management": ("stakeholder management", "stakeholder engagement", "stakeholder communication"),
-    "process optimization": ("process optimization", "process optimisation", "process improvement", "process redesign"),
-    "ai implementation": ("ai project delivery", "artificial intelligence project delivery", "ai implementation", "ai transformation project"),
+    "project management": ("project management", "project manager", "project coordination", "project delivery", "deliver projects", "projektmanagement", "projektkoordination", "projektsteuerung"),
+    "stakeholder management": ("stakeholder management", "stakeholder engagement", "stakeholder communication", "kundenkommunikation", "kommunikation mit kunden", "client communication", "customer communication"),
+    "process optimization": ("process optimization", "process optimisation", "process improvement", "process redesign", "prozessoptimierung", "prozessverbesserung", "ablaufoptimierung"),
+    "ai implementation": ("ai project delivery", "artificial intelligence project delivery", "ai implementation", "ai transformation project", "ki praktisch einsetzen", "ki praktisch einsetzt", "setzt ki praktisch ein", "ki sinnvoll einsetzen", "ki implementieren", "implementierung von ki", "einfuhrung von ki", "ai adoption", "artificial intelligence adoption", "kunstliche intelligenz praktisch einsetzen", "kunstliche intelligenz implementieren"),
     "sql": ("sql", "structured query language"),
     "python": ("python",),
     "excel": ("excel", "microsoft excel"),
@@ -102,9 +103,9 @@ SKILL_SYNONYMS: dict[str, tuple[str, ...]] = {
 }
 
 _TASK_SYNONYMS: dict[str, tuple[str, ...]] = {
-    "project delivery": ("project delivery", "deliver projects", "manage projects", "project management"),
-    "stakeholder management": ("stakeholder management", "stakeholder engagement", "stakeholder communication"),
-    "process improvement": ("process optimization", "process optimisation", "process improvement", "process redesign"),
+    "project delivery": ("project delivery", "deliver projects", "manage projects", "project management", "projektmanagement", "projektkoordination"),
+    "stakeholder management": ("stakeholder management", "stakeholder engagement", "stakeholder communication", "kundenkommunikation", "kommunikation mit kunden", "client communication", "customer communication"),
+    "process improvement": ("process optimization", "process optimisation", "process improvement", "process redesign", "prozessoptimierung", "prozessverbesserung"),
     "data analysis": ("data analysis", "data analytics", "analyze data", "analyse data"),
     "reporting and dashboards": ("reporting", "dashboard", "dashboards", "data visualization", "data visualisation"),
     "change management": ("change management", "organizational change", "transformation adoption"),
@@ -168,7 +169,7 @@ def score_job(
     plain_description = _plain_text(job.description or "")
 
     dimensions = [
-        _skills_dimension(required_skills, matched, candidate_skills, w.skills),
+        _skills_dimension(required_skills, matched, candidate_skills, w.skills, plain_description),
         _experience_dimension(candidate, plain_description, w.experience),
         _role_dimension(candidate, job, w.role_interests),
         _seniority_dimension(candidate, job, plain_description, w.seniority_qualifications),
@@ -238,13 +239,22 @@ def canonical_skill(value: str) -> str:
     return normalized
 
 
-def _skills_dimension(required: set[str], matched: list[str], candidate_skills: set[str], weight: float) -> DimensionScore:
+def _skills_dimension(
+    required: set[str], matched: list[str], candidate_skills: set[str], weight: float, description: str = "",
+) -> DimensionScore:
     if not candidate_skills:
         return DimensionScore("skills", weight, None, unavailable_reason="Candidate skills are not provided.")
     if not required:
         return DimensionScore("skills", weight, None, unavailable_reason="No recognized job skills were found.")
     score = _rounded(100 * len(matched) / len(required))
-    evidence = [f"Candidate lists {skill}, and the job description mentions {skill}." for skill in matched]
+    evidence = []
+    for skill in matched:
+        aliases = SKILL_SYNONYMS.get(skill, (skill,))
+        observed = next((alias for alias in aliases if _has_any_phrase(description, (alias,))), skill)
+        if observed == skill:
+            evidence.append(f"Candidate lists {skill}, and the job description mentions {skill}.")
+        else:
+            evidence.append(f"Candidate lists {skill}; job wording '{observed}' is an explicit supported equivalent.")
     evidence += [f"Job description mentions {skill}; candidate profile does not list it." for skill in sorted(required - set(matched))]
     return DimensionScore("skills", weight, score, evidence)
 
@@ -330,7 +340,10 @@ def _preference_dimension(candidate: CandidateProfile, job: Job, weight: float) 
         pieces.append((100 if job.employment_type in wanted_types else 0, f"Job employment type is {job.employment_type.value}; preferred: {', '.join(item.value for item in preferences.employment_type_preferences)}."))
     if preferences.location_preferences and job.location not in {"Unknown", "Remote"}:
         haystack = _normalize(f"{job.location} {job.country or ''}")
-        hits = [location for location in preferences.location_preferences if _contains_phrase(haystack, _normalize(location))]
+        job_country = _country_code(job.country) or country_from_location(job.location)
+        hits = [location for location in preferences.location_preferences
+                if _contains_phrase(haystack, _normalize(location))
+                or (_country_code(location) is not None and _country_code(location) == job_country)]
         pieces.append((100 if hits else 0, f"Job location {'matches' if hits else 'does not match'} preferred location(s) {', '.join(preferences.location_preferences)}."))
     if preferences.preferred_industries:
         tags = job.raw_metadata.get("tags", []) + job.raw_metadata.get("categories", [])
@@ -482,7 +495,9 @@ def _extract_concepts(text: str, dictionary: dict[str, tuple[str, ...]]) -> set[
 def _role_tokens(value: str) -> set[str]:
     text = _normalize(value)
     text = re.sub(r"\bbi\b", "business intelligence", text)
-    text = re.sub(r"\bconsulting\b", "consultant", text)
+    text = re.sub(r"\bki\b|\bkunstliche intelligenz\b", "ai", text)
+    text = re.sub(r"\bberatung\b|\bberater(in)?\b|\bconsulting\b", "consultant", text)
+    text = re.sub(r"\bm w d\b", " ", text)
     # Seniority is scored separately, so it should not obscure otherwise identical role names.
     text = re.sub(r"\b(junior|entry level|mid level|senior|sr|lead|principal)\b", " ", text)
     generic_roles = {"analyst", "consultant", "manager", "executive"}
@@ -505,13 +520,7 @@ _CITY_COUNTRIES = {
 
 
 def _country_code(value: str | None) -> str | None:
-    if not value:
-        return None
-    normalized = _normalize(value)
-    for code, aliases in _COUNTRY_ALIASES.items():
-        if normalized == code or normalized in {_normalize(alias) for alias in aliases}:
-            return code.upper()
-    return value.strip().upper() if re.fullmatch(r"[A-Za-z]{2}", value.strip()) else None
+    return normalize_country_code(value)
 
 
 def _country_from_job_location(job: Job) -> str | None:
@@ -519,13 +528,7 @@ def _country_from_job_location(job: Job) -> str | None:
 
 
 def _country_from_location_text(value: str | None) -> str | None:
-    location = _normalize(value or "")
-    for code, aliases in _COUNTRY_ALIASES.items():
-        if any(_contains_phrase(location, _normalize(alias)) for alias in aliases):
-            return code.upper()
-    # A deliberately small city list for common locations; no URL/domain inference.
-    city_country = _CITY_COUNTRIES.get(location)
-    return city_country.upper() if city_country else None
+    return country_from_location(value)
 
 
 def _hard_country_assessment(job: Job, required_country: str) -> tuple[Eligibility, list[str]]:
@@ -585,8 +588,8 @@ def _hard_country_assessment(job: Job, required_country: str) -> tuple[Eligibili
         if job.work_model in {WorkModel.ONSITE, WorkModel.HYBRID}:
             evidence.append(f"Physical {job.work_model.value} job location is outside required region {target}.")
             return Eligibility.INELIGIBLE, evidence
-        evidence.append("Work model is unknown, so a foreign location cannot be treated as remote-eligible.")
-        return Eligibility.UNKNOWN, evidence
+        evidence.append("Physical job location is outside the required region and remote eligibility is not verified.")
+        return Eligibility.INELIGIBLE, evidence
 
     # Without a physical job country, only a remote role's verified eligibility
     # can satisfy a hard country requirement. Missing metadata stays unresolved.
