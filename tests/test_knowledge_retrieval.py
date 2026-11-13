@@ -106,6 +106,9 @@ def test_live_retrieval_uses_shared_embedding_and_documents_api_read_only():
     assert "upsert" not in documents.search_call
     assert result["matches"][0]["page_number"] == 50
     assert result["matches"][0]["excerpt"] == "This is a supported excerpt."
+    assert result["matches"][0]["source_passage"] == "This is a supported excerpt."
+    assert result["matches"][0]["source_passage_complete"] is True
+    assert result["matches"][0]["source_passage_truncated"] is False
     assert len(result["matches"]) == 3
 
 
@@ -149,6 +152,23 @@ def test_retrieval_normalizes_stored_page_range_and_float_publication_year():
     assert item["page_number"] == 9
     assert isinstance(item["page_number"], int)
     assert item["geographic_scope"] == "Germany_focused"
+
+
+def test_retrieval_marks_overlong_source_passage_incomplete_instead_of_presenting_it_as_full():
+    embedding = [0.1] * 1536
+    text = "x" * 3100
+    result = vector_store.run_knowledge_retrieval(
+        "question", live=True, openai_api_key="key", pinecone_api_key="key",
+        openai_client=SimpleNamespace(embeddings=FakeEmbeddings(response=embedding_response(embedding))),
+        pinecone_client=FakePinecone(FakeDocuments(matches=[SimpleNamespace(
+            id="long", chunk_id="long", chunk_text=text,
+            document_title="Skills", source_url="https://example.org/skills",
+        )])), dense_vector_query=lambda **kwargs: kwargs,
+    )
+    item = result["matches"][0]
+    assert len(item["source_passage"]) == 3000
+    assert item["source_passage_complete"] is False
+    assert item["source_passage_truncated"] is True
 
 
 def test_retrieval_uses_local_metadata_fallback_for_missing_page_and_year():

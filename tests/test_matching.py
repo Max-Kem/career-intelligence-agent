@@ -6,8 +6,9 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from career_agent.candidate import CandidateProfile, HardRequirements
+from career_agent.candidate import CandidateProfile, ExperienceEntry, HardRequirements
 from career_agent.matching import (
+    MINIMUM_MATCH_SCORE,
     SKILL_SYNONYMS,
     ScoringWeights,
     SupportStatus,
@@ -103,6 +104,39 @@ def test_title_seniority_overrides_incidental_description_words():
     )
     assert seniority(explicitly_senior) == 0
     assert seniority(incidental_only) is None
+
+
+def test_principle_typo_does_not_override_structured_director_seniority():
+    profile = load_profile("candidate_profile_a.json")
+    job = make_job(title="Principle AI Transformation Consultant", seniority="Director, Executive")
+    result = score_job(profile, job)
+    seniority = next(d for d in result.dimensions if d.name == "seniority_qualifications")
+    assert seniority.score == 0
+    assert "director" in seniority.evidence[0]
+
+
+def test_candidate_with_documented_specialist_experience_can_still_qualify():
+    profile = load_profile("candidate_profile_a.json").model_copy(update={
+        "years_experience": 8,
+        "desired_job_titles": ["Senior Strategic Advisor"],
+        "professional_experience": [ExperienceEntry(
+            title="Commercial Strategy Consultant",
+            responsibilities=[
+                "Managed project delivery and stakeholder relationships.",
+                "Led Revenue Growth Management and Trade Promotion Management for CPG clients.",
+            ],
+        )],
+    })
+    job = make_job(
+        title="Senior Strategic Advisor - EMEA", country="DE", location="Munich",
+        description=("Manage project delivery and stakeholder relationships. "
+                     "At least 6 years of relevant experience. "
+                     "Deep domain expertise in CPG commercial analytics, pricing architecture, "
+                     "and trade promotion optimization (RGM & TPM)."),
+    )
+    result = match_candidate_to_jobs(profile, [job])
+    assert result.ranked_matches[0].recommendation_blockers == []
+    assert result.top_matches == result.ranked_matches
 
 
 def test_generic_role_terms_alone_do_not_create_role_relevance():
@@ -370,6 +404,21 @@ def test_soft_seniority_mismatch_can_qualify_with_strong_relevant_experience():
     assert len(result.top_matches) == 1
     assert result.top_matches[0].recommendation_warnings
     assert result.top_matches[0].recommendation_blockers == []
+
+
+def test_profile_d_two_years_of_junior_experience_cannot_qualify_for_senior_role_from_task_overlap_alone():
+    profile = load_profile("candidate_profile_d.json")
+    senior_job = make_job(
+        title="Senior Data Analyst",
+        description="Use SQL and Python for reporting and dashboards.",
+        location="Remote", country="DE", eligible_countries=["DE"], work_model=WorkModel.REMOTE,
+    )
+    result = match_candidate_to_jobs(profile, [senior_job], top_n=5)
+    match = result.ranked_matches[0]
+    assert match.score is not None and match.score >= MINIMUM_MATCH_SCORE
+    assert next(item for item in match.dimensions if item.name == "experience").score == 100
+    assert result.top_matches == []
+    assert any("substantial relevant experience" in blocker for blocker in match.recommendation_blockers)
 
 
 @pytest.mark.parametrize(

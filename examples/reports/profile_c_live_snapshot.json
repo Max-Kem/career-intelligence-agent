@@ -1,0 +1,1319 @@
+{
+  "snapshot_kind": "saved_live_mode_historical_snapshot",
+  "historical_snapshot": true,
+  "source_snapshot": {
+    "local_report_filename": "career_report_custom_20261112T173808796191Z.json",
+    "captured_at_utc": "2026-11-12T17:38:08.796191+00:00",
+    "note": "Historical output preserved as recorded; it was not recomputed with later code changes."
+  },
+  "candidate": {
+    "label": "Synthetic Profile C",
+    "summary": "SYNTHETIC candidate: transformation consultant with approximately 7.3 years of experience, including 3 years delivering AI adoption and workflow automation initiatives. Combines consulting, process improvement, project delivery and change management; experience is in applied implementation, not machine-learning engineering.",
+    "target_roles": [
+      "AI Transformation Consultant",
+      "Digital Transformation Consultant",
+      "AI Project Manager"
+    ],
+    "skills": [
+      "Stakeholder management",
+      "Project management",
+      "AI adoption",
+      "Workflow automation",
+      "Process optimization",
+      "Change management",
+      "Python scripting",
+      "REST API integration",
+      "Workshop facilitation"
+    ],
+    "years_experience": 7.3,
+    "seniority_preferences": [
+      "mid-level",
+      "senior"
+    ],
+    "education": [
+      {
+        "qualification": "Master of Science",
+        "field": "Business Information Systems"
+      }
+    ]
+  },
+  "search": {
+    "mode": "Live Mode",
+    "job_data_source": "live_providers",
+    "queries": [
+      "AI Transformation Consultant",
+      "Digital Transformation Consultant",
+      "AI Project Manager"
+    ],
+    "providers": [
+      "arbeitnow",
+      "himalayas"
+    ],
+    "provider_counts": {
+      "arbeitnow": 61,
+      "himalayas": 60
+    },
+    "deduplicated_provider_counts": {
+      "arbeitnow": 54,
+      "himalayas": 29
+    },
+    "final_provider_counts": {
+      "arbeitnow": 54,
+      "himalayas": 29
+    },
+    "duplicates_removed": 8,
+    "filter_exclusions": {
+      "keyword": 30,
+      "country": 0,
+      "work_model": 0,
+      "employment_type": 0
+    },
+    "provider_errors": {}
+  },
+  "outcome": {
+    "workflow_status": "completed",
+    "completed_at_utc": "2026-11-12T17:38:08.796191+00:00",
+    "jobs_evaluated": 83,
+    "recommendation_count": 2,
+    "potential_match_review_count": 21,
+    "non_recommendation_count": 81,
+    "workflow_warnings": [],
+    "workflow_errors": []
+  },
+  "recommendations": [
+    {
+      "job": {
+        "title": "Project Manager",
+        "company": "BLP Digital AG",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/blp-digital-ag/jobs/project-manager-6532995622?utm_source=api"
+      },
+      "score": 83,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "adjacent",
+        "evidence": [
+          "Project management is supported by duties in transformation, delivery, making this a reasonable adjacent path."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Enterprise software / ERP implementation experience",
+          "category": "specialized_expertise",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bonus points for ERP implementation experience, finance or supply chain processes, or AI-driven SaaS."
+        }
+      ],
+      "strengths": [
+        "Matched listed skill: project management.",
+        "Candidate lists project management, and the job description mentions project management.",
+        "Candidate reports 7.3 years; job description asks for 2 years.",
+        "Job is explicitly eligible for at least one preferred country (DE)."
+      ],
+      "gaps": [],
+      "geographic_status": "eligible",
+      "geographic_evidence": [
+        "Required geographic region: DE.",
+        "Job location is marked remote; no physical job country is provided.",
+        "Provider confirms remote eligibility in DE."
+      ],
+      "seniority_status": 50,
+      "seniority_evidence": [
+        "Candidate seniority preferences: mid-level, senior; job indicates: manager.",
+        "Candidate qualifications master; job description mentions master."
+      ],
+      "uncertainties": [],
+      "warnings": [
+        "Seniority mismatch: candidate prefers mid-level, senior; job indicates manager."
+      ]
+    },
+    {
+      "job": {
+        "title": "Associate Project Manager",
+        "company": "BLP Digital AG",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/blp-digital-ag/jobs/associate-project-manager?utm_source=api"
+      },
+      "score": 80,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "adjacent",
+        "evidence": [
+          "Project management is supported by duties in transformation, delivery, making this a reasonable adjacent path."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Enterprise software / ERP implementation experience",
+          "category": "specialized_expertise",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bonus points for ERP implementation experience, finance or supply chain processes, or AI-driven SaaS."
+        }
+      ],
+      "strengths": [
+        "Matched listed skill: project management.",
+        "Candidate lists project management, and the job description mentions project management.",
+        "Candidate reports 7.3 years; job description asks for 1 years.",
+        "Candidate seniority preferences: mid-level, senior; job indicates: mid-level.",
+        "Job is explicitly eligible for at least one preferred country (DE)."
+      ],
+      "gaps": [
+        "Job title 'Associate Project Manager' does not match the listed role interests closely."
+      ],
+      "geographic_status": "eligible",
+      "geographic_evidence": [
+        "Required geographic region: DE.",
+        "Job location is marked remote; no physical job country is provided.",
+        "Provider confirms remote eligibility in DE."
+      ],
+      "seniority_status": 100,
+      "seniority_evidence": [
+        "Candidate seniority preferences: mid-level, senior; job indicates: mid-level.",
+        "Candidate qualifications master; job description mentions master."
+      ],
+      "uncertainties": [],
+      "warnings": []
+    }
+  ],
+  "potential_matches_requiring_review": [
+    {
+      "job": {
+        "title": "Principle AI Transformation Consultant",
+        "company": "BLP Digital AG",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/blp-digital-ag/jobs/principle-ai-transformation-consultant?utm_source=api"
+      },
+      "score": 86,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "aligned",
+        "evidence": [
+          "Job title matches the stated target role 'ai transformation consultant'."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You take our most complex and sensitive accounts: large groups with several entities, ERP landscapes and stakeholder levels, where the move to AI-native operations is a real change program and not a configuration task."
+        },
+        {
+          "requirement": "Purchase-to-pay / order-to-cash process expertise",
+          "category": "specialized_expertise",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'order-to-cash'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "Deep, end-to-end knowledge of purchase-to-pay or order-to-cash, and a track record of changing how large finance or procurement organizations actually work."
+        },
+        {
+          "requirement": "Senior leadership experience",
+          "category": "leadership_experience",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Executive presence: you hold the room with a CFO, especially when the conversation is difficult."
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Enterprise software / ERP implementation experience",
+          "category": "specialized_expertise",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bonus points for experience with ERP systems, AP automation or AI-driven SaaS."
+        }
+      ],
+      "reasons": [
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Purchase-to-pay / order-to-cash process expertise); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Senior leadership experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Strategic Advisor - EMEA",
+        "company": "XTEL",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/xtel/jobs/senior-strategic-advisor-emea?utm_source=api"
+      },
+      "score": 80,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "XTEL is launching X-Steps: a dedicated global Business Consulting Department that embeds business expertise directly into every client engagement alongside our technical implementation teams."
+        },
+        {
+          "requirement": "CPG commercial / RGM and trade-promotion expertise",
+          "category": "domain_expertise",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Commercial Need Discovery & Translation: Understand broad CPG business goals in RGM and TPM (pricing, trade terms, promotional ROI, assortment) and translate them into specific platform requirements."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (CPG commercial / RGM and trade-promotion expertise); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Product Marketing Operations Manager | Germany | Remote",
+        "company": "Grafana Labs",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/grafana-labs/jobs/product-marketing-operations-manager-germany-remote?utm_source=api"
+      },
+      "score": 80,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "Product marketing is a different primary occupational function from the candidate's stated targets."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Career-direction alignment is weak: Product marketing is a different primary occupational function from the candidate's stated targets."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Customer Success Manager (m/f/d) - DACH",
+        "company": "bookingkit",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/bookingkit/jobs/senior-customer-success-manager-m-f-d-dach?utm_source=api"
+      },
+      "score": 80,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "Customer success is a different primary occupational function from the candidate's stated targets."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent German in speaking and writing: you will work primarily with DACH customers."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: Customer success is a different primary occupational function from the candidate's stated targets."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Quantum Processor Development Lead",
+        "company": "Quantware",
+        "location": "Delft",
+        "country": null,
+        "work_model": "unknown",
+        "employment_type": "full-time",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.nl/jobs/companies/quantware/quantum-processor-development-lead-delft-235629"
+      },
+      "score": 78,
+      "evidence_coverage": 100,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "MSc, PhD, or equivalent experience in physics, electrical engineering, microwave/RF engineering, semiconductor technology, or a related field.",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "MSc, PhD, or equivalent experience in physics, electrical engineering, microwave/RF engineering, semiconductor technology, or a related field."
+        },
+        {
+          "requirement": "Senior leadership experience",
+          "category": "leadership_experience",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Leadership experience"
+        },
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "4+ years delivering complex, research-intensive chip hardware projects in a project management capacity."
+        }
+      ],
+      "reasons": [
+        "Eligibility in required country/countries (DE) is unknown.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Senior leadership experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Evidence status: provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Solution Manager Third-Party Security Solutions (m/f/d) 12-Month Maternity Leave",
+        "company": "primion Technology GmbH",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "contract",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/primion-technology-gmbh/jobs/solution-manager-third-party-security-solutions-m-f-d-12-month-maternity-leave?utm_source=api"
+      },
+      "score": 78,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Degree in business informatics, computer science, industrial engineering or a comparable",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Degree in business informatics, computer science, industrial engineering or a comparable"
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Business fluent English language skills; German language skills are a plus."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Business fluent English language skills; German language skills are a plus."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Contract Manager – OFCI Procurement (Data Centers)",
+        "company": "Nebius",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/nebius/jobs/contract-manager-ofci-procurement-data-centers?utm_source=api"
+      },
+      "score": 78,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Bachelor’s degree in Business, Finance, Law, Engineering, or related field",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bachelor’s degree in Business, Finance, Law, Engineering, or related field"
+        },
+        {
+          "requirement": "At least 8 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 7.3 years; posting states at least 8.",
+          "posting_evidence": "8+ years of experience in contract or commercial management on capital projects"
+        },
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Exposure to large-scale, owner-led or EPCM project models"
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (At least 8 years of experience); candidate evidence is does_not_meet_requirement. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "International Junior Consultant Healthcare LATAM & North America at CPC",
+        "company": "Chameleon Pharma Consulting",
+        "location": "Berlin",
+        "country": "DE",
+        "work_model": "unknown",
+        "employment_type": "unknown",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.com/jobs/companies/chameleon-pharma-consulting/international-junior-consultant-healthcare-latam-north-america-at-cpc-berlin-346817"
+      },
+      "score": 73,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Do you enjoy working in an international team, analyzing complex interrelationships, and organizing various projects and topics?"
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Proficiency in English is mandatory, Spanish or Portuguese would be an additional plus"
+        },
+        {
+          "requirement": "Language proficiency: Spanish",
+          "category": "language",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Proficiency in English is mandatory, Spanish or Portuguese would be an additional plus"
+        },
+        {
+          "requirement": "Bachelor’s/Master’s degree with first 1-2 years working experience or practical internships, strong interest in Consulting",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bachelor’s/Master’s degree with first 1-2 years working experience or practical internships, strong interest in Consulting"
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "OFCI Equipment Procurement Manager",
+        "company": "Nebius",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/nebius/jobs/ofci-equipment-procurement-manager?utm_source=api"
+      },
+      "score": 73,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Bachelor's degree in a relevant field of study, (i.e.",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bachelor's degree in a relevant field of study, (i.e."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Project Manager (Intralogistics and Robotics)",
+        "company": "Nomagic",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/nomagic/jobs/senior-project-manager-intralogistics-and-robotics?utm_source=api"
+      },
+      "score": 73,
+      "evidence_coverage": 75,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "Intralogistics is a specialized occupational domain outside the candidate's stated targets."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "At least 5 years of project-management role experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "5+ years of experience as a Project Manager"
+        },
+        {
+          "requirement": "At least 5 years of robotics or intralogistics experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "5+ years of experience in intralogistics and/or robotics industry"
+        },
+        {
+          "requirement": "Robotics / intralogistics experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "5+ years of experience in intralogistics and/or robotics industry"
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent German (required), enabling smooth communication with customers, partners and internal stakeholders"
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: Intralogistics is a specialized occupational domain outside the candidate's stated targets.",
+        "Material job requirement needs verification (At least 5 years of project-management role experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (At least 5 years of robotics or intralogistics experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Robotics / intralogistics experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Manager: Commercial Insurance / Reinsurance",
+        "company": "Synpulse",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/synpulse/jobs/manager-commercial-insurance-reinsurance?utm_source=api"
+      },
+      "score": 70,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "As a Manager in the Commercial Insurance / Reinsurance practice , you will take a leading role in delivering and driving complex transformation initiatives for top-tier (re)insurance clients."
+        },
+        {
+          "requirement": "Excellent academic background (Bachelor’s or Master’s degree from a top university)",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Excellent academic background (Bachelor’s or Master’s degree from a top university)"
+        },
+        {
+          "requirement": "At least 8 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 7.3 years; posting states at least 8.",
+          "posting_evidence": "5–8+ years of relevant experience in consulting or within the (re)insurance industry"
+        },
+        {
+          "requirement": "(bachelor/ master diploma, etc.) with certificate of grades",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "(bachelor/ master diploma, etc.) with certificate of grades"
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (At least 8 years of experience); candidate evidence is does_not_meet_requirement. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Consultant - Digital Commerce (Retail & CPG) | DACH",
+        "company": "Avomind",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/avomind/jobs/senior-consultant-digital-commerce-retail-cpg-dach?utm_source=api"
+      },
+      "score": 69,
+      "evidence_coverage": 65,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Our client is a global IT consulting and digital engineering company specializing in software development, cloud transformation, data and AI, and digital experience solutions."
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Professional fluency in German and English."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Professional fluency in German and English."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Evidence status: provisional.",
+        "Evidence coverage is 65%; current support remains provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Engagement Manager, AI Implementations",
+        "company": "Tether Operations Limited",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/tether-operations-limited/jobs/engagement-manager-ai-implementations-6916599992?utm_source=api"
+      },
+      "score": 68,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Project Manager",
+        "company": "BLP Digital AG",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/blp-digital-ag/jobs/senior-project-manager-7620281465?utm_source=api"
+      },
+      "score": 65,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "adjacent",
+        "evidence": [
+          "Project management is supported by duties in transformation, delivery, making this a reasonable adjacent path."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "As a Senior Project Manager , you make large, global blp transformations happen."
+        },
+        {
+          "requirement": "At least 5 years of complex multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Typically you bring 5+ years delivering complex, multi-country programs."
+        },
+        {
+          "requirement": "At least 4 years of complex project or program delivery experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "4+ years of experience delivering complex projects: management consulting, enterprise software implementation, or large-scale transformation delivery."
+        },
+        {
+          "requirement": "Enterprise software / ERP implementation experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "4+ years of experience delivering complex projects: management consulting, enterprise software implementation, or large-scale transformation delivery."
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Fluent in German and English, spoken and written."
+        }
+      ],
+      "reasons": [
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (At least 5 years of complex multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (At least 4 years of complex project or program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Enterprise software / ERP implementation experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Sales & Partnerships Manager",
+        "company": "Zilch",
+        "location": "Zilch UK",
+        "country": null,
+        "work_model": "unknown",
+        "employment_type": "full-time",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.co.uk/jobs/companies/zilch/senior-sales-partnerships-manager-london-190619"
+      },
+      "score": 65,
+      "evidence_coverage": 65,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Eligibility in required country/countries (DE) is unknown.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Evidence status: provisional.",
+        "Evidence coverage is 65%; current support remains provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Project Manager Digital Solutions - Remote EMEA (M/F/D) (COLLEGNO TORINO, TO, IT",
+        "company": "TE Connectivity",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/te-connectivity/jobs/project-manager-digital-solutions-remote-emea-m-f-d-collegno-torino-to-it?utm_source=api"
+      },
+      "score": 61,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "adjacent",
+        "evidence": [
+          "Project management is supported by duties in transformation, process change, delivery, making this a reasonable adjacent path."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "The Manager, Project Management Digital Solutions will lead the adoption of AI and digital solutions across the Global Automotive project management organization."
+        },
+        {
+          "requirement": "Bachelor’s or master’s degree in Computer Science, Business, Data, project management or a related field is preferred.",
+          "category": "education",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bachelor’s or master’s degree in Computer Science, Business, Data, project management or a related field is preferred."
+        }
+      ],
+      "reasons": [
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Deployment Strategist - Databricks (Contract - EU Candidates Only)",
+        "company": "Hiflylabs",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "contract",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/hiflylabs/jobs/deployment-strategist-databricks-contract-eu-candidates-only?utm_source=api"
+      },
+      "score": 61,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Delivery Track Record: 5+ years managing complex, client-facing technology deployments, advisory initiatives, or forward-deployed consulting engagements (e.g., Engagement Manager, Delivery Lead, or field-facing Product Manager)."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Consultant (m/f/d)",
+        "company": "Engineered Intelligence Inc.",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/engineered-intelligence-inc/jobs/senior-consultant-m-f-d?utm_source=api"
+      },
+      "score": 58,
+      "evidence_coverage": 65,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Bachelor’s degree in Engineering, Applied Science, Data Analytics, Operations Research, or a related discipline (or equivalent experience).",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Bachelor’s degree in Engineering, Applied Science, Data Analytics, Operations Research, or a related discipline (or equivalent experience)."
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Professional working proficiency in German and English, with the ability to lead client workshops, facilitate technical discussions, and communicate complex concepts clearly."
+        },
+        {
+          "requirement": "Language proficiency: German",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "Professional working proficiency in German and English, with the ability to lead client workshops, facilitate technical discussions, and communicate complex concepts clearly."
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Evidence status: provisional.",
+        "Evidence coverage is 65%; current support remains provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Principal Consultant – HR & Organizational Transformation (all genders)",
+        "company": "Ray Sono GmbH",
+        "location": "Munich",
+        "country": "DE",
+        "work_model": "unknown",
+        "employment_type": "unknown",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.com/jobs/companies/ray-sono-gmbh/principal-consultant-hr-organizational-transformation-all-genders-munich-56237"
+      },
+      "score": 55,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Engagement Manager - Commercial",
+        "company": "Lifelancer",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/lifelancer/jobs/engagement-manager-commercial-3905640657?utm_source=api"
+      },
+      "score": 54,
+      "evidence_coverage": 65,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "At least 8 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 7.3 years; posting states at least 8.",
+          "posting_evidence": "Experience: 8+ years in Life Sciences Consulting (Business or Management Consulting preferred)"
+        },
+        {
+          "requirement": "Large multi-country / multi-entity program delivery experience",
+          "category": "project_scale",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Leadership: Proven track record of managing large project teams and $1M+ engagements"
+        },
+        {
+          "requirement": "Education: Bachelor’s degree or higher",
+          "category": "education",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Education: Bachelor’s degree or higher"
+        }
+      ],
+      "reasons": [
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (Large multi-country / multi-entity program delivery experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Evidence status: provisional.",
+        "Evidence coverage is 65%; current support remains provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Biobank Lead (Senior Manager / Associate Director)",
+        "company": "Flagshippioneeringinc",
+        "location": "Cambridge",
+        "country": null,
+        "work_model": "unknown",
+        "employment_type": "unknown",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.co.uk/jobs/companies/flagshippioneeringinc/biobank-lead-senior-manager-associate-director-cambridge-421342"
+      },
+      "score": 50,
+      "evidence_coverage": 65,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Eligibility in required country/countries (DE) is unknown.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Evidence status: provisional.",
+        "Evidence coverage is 65%; current support remains provisional."
+      ],
+      "warnings": []
+    }
+  ],
+  "enrichment": {
+    "esco": {
+      "status": "succeeded",
+      "lookups": 11
+    },
+    "company_research": {
+      "status": "succeeded",
+      "companies_researched": 1
+    },
+    "market_intelligence": {
+      "status": "succeeded",
+      "query_count": 3,
+      "evidence_count": 6
+    },
+    "llm_synthesis": {
+      "status": "succeeded",
+      "generation_mode": "llm_generated",
+      "historical_model": "gpt-4o-mini",
+      "request_count": 1,
+      "request_limit": 1,
+      "market_intelligence": [
+        {
+          "text": "In Germany, companies face challenges in adopting advanced technologies like artificial intelligence (AI), particularly in the manufacturing sector. While there is a focus on productivity gains through digital technologies, innovation and business model transformation remain less common. The European Commission has noted ongoing efforts to support SMEs in their digital transformation through initiatives like the Mittelstand-Digital funding priority, which aims to address barriers to digitalization and enhance AI application across various sectors.",
+          "focus": "market_finding",
+          "citations": [
+            {
+              "kind": "market_source",
+              "document_title": "Germany - Digital Decade Country Report 2026",
+              "publisher": "European Commission",
+              "publication_year": "2026",
+              "page_number": "5",
+              "geographic_scope": "Germany_focused",
+              "source_url": "https://digital-strategy.ec.europa.eu/en/factpages/germanys-2026-digital-decade-country-report"
+            },
+            {
+              "kind": "market_source",
+              "document_title": "Germany - Digital Decade Country Report 2026",
+              "publisher": "European Commission",
+              "publication_year": "2026",
+              "page_number": "15",
+              "geographic_scope": "Germany_focused",
+              "source_url": "https://digital-strategy.ec.europa.eu/en/factpages/germanys-2026-digital-decade-country-report"
+            }
+          ]
+        },
+        {
+          "text": "The demand for skills in Germany is projected to evolve, with a significant portion of job openings requiring medium to high-level qualifications. This trend indicates a growing need for professionals who can navigate complex digital transformations and implement AI solutions effectively. However, specific evidence regarding the demand for AI transformation roles remains unestablished from the available sources.",
+          "focus": "market_finding",
+          "citations": [
+            {
+              "kind": "market_source",
+              "document_title": "Germany - 2025 Skills forecast",
+              "publisher": "European Centre for the Development of Vocational Training (Cedefop)",
+              "publication_year": "2025",
+              "page_number": "9",
+              "geographic_scope": "Germany_focused",
+              "source_url": "https://www.cedefop.europa.eu/en/country-reports/germany-2025-skills-forecast"
+            }
+          ]
+        }
+      ],
+      "personalized_career_intelligence": [
+        {
+          "text": "The candidate has approximately 7.3 years of experience in transformation consulting, with a strong focus on AI adoption and workflow automation. Their documented skills include project management, stakeholder management, and change management, which align well with their target roles of AI Transformation Consultant and Digital Transformation Consultant. The candidate's experience in leading AI adoption initiatives and managing process redesign projects further supports their suitability for these roles.",
+          "focus": "candidate_evidence",
+          "citations": [
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "target roles and career interests"
+            },
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "documented skills"
+            },
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "documented experience and years of experience"
+            }
+          ]
+        },
+        {
+          "text": "For the Project Manager position at BLP Digital AG, the candidate meets the experience requirement and has relevant project management skills. However, language proficiency in both English and German is required, and this has not been documented in the candidate's profile. Additionally, the job prefers candidates with enterprise software or ERP implementation experience, which is not documented in the candidate's background.",
+          "focus": "job_requirement",
+          "citations": [
+            {
+              "kind": "job_posting",
+              "document_title": "Project Manager",
+              "source_url": "https://himalayas.app/companies/blp-digital-ag/jobs/project-manager-6532995622?utm_source=api",
+              "company": "BLP Digital AG"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interpretation_and_limitations": [
+    "Candidate profile is synthetic; employer and vacancy details are taken from the saved report.",
+    "Match scores are evidence-based alignment indicators, not hiring probabilities or verified hiring decisions.",
+    "Job listings and enrichment results are a historical snapshot; current availability and company information were not rechecked.",
+    "LLM-generated synthesis is preserved verbatim from the historical run and was not rewritten after later wording safeguards.",
+    "Historical requirement labels and synthesis text are preserved as recorded; they were not retroactively corrected. In particular, year ranges may reflect the earlier upper-bound parsing defect, and candidate evidence statuses remain the authoritative recorded distinction between undocumented and explicitly unmet."
+  ]
+}

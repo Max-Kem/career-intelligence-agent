@@ -8,3 +8,4 @@ openai>=1,<3
 streamlit>=1.38,<2
 pypdf>=6,<7
 fonttools>=4,<5
+reportlab>=4.2,<6

@@ -46,4 +46,11 @@ Thumbs.db
 # Internal project planning
 PROJECT_PLAN.md
 CAREER_INTELLIGENCE_ROADMAP.md
-reports/
+/reports/
+
+# Temporary PDF previews
+/tmp/
+
+# Internal project documents
+/Project3_Final_Deliverables.md
+/PROJECT3_PROGRESS_SNAPSHOT.md

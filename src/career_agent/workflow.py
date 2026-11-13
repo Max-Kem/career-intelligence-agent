@@ -15,6 +15,7 @@ from .discovery import DiscoveryResult
 from .esco import ESCOClient, ESCO_LANGUAGE, ESCO_SOURCE_URL, enrich_candidate_and_matches
 from .filtering import FilterDiagnostics
 from .integration import CandidateDiscoveryRun, discover_candidate_jobs, derive_search_queries
+from .intelligence_synthesis import run_grounded_synthesis
 from .matching import MINIMUM_MATCH_SCORE, JobMatch, MatchingResult, match_candidate_to_jobs
 from .models import Job
 from .requirements_review import requirements_to_verify
@@ -32,6 +33,8 @@ class WorkflowState(TypedDict, total=False):
     allow_live_company_research: bool
     market_intelligence_enabled: bool
     allow_live_market_intelligence: bool
+    llm_synthesis_enabled: bool
+    allow_live_llm_synthesis: bool
     esco_language: str
     query_override: str | None
     query_limit: int
@@ -54,6 +57,7 @@ class WorkflowState(TypedDict, total=False):
     esco_enrichment: dict
     company_research: dict
     market_intelligence: dict
+    intelligence_synthesis: dict
     report_paths: dict[str, str]
     started_at: str
     completed_at: str
@@ -68,12 +72,14 @@ def build_workflow(
     esco_client_factory: Callable[[], ESCOClient] | None = None,
     company_researcher_factory: Callable[[], TavilyCompanyResearchClient] | None = None,
     market_intelligence_runner: Callable[[str], dict] | None = None,
+    synthesis_runner: Callable[..., dict] | None = None,
 ):
     """Create the research-to-report graph; discovery is injectable for tests."""
     run_discovery = discovery_runner or discover_candidate_jobs
     make_esco_client = esco_client_factory or ESCOClient
     make_company_researcher = company_researcher_factory or TavilyCompanyResearchClient
     retrieve_market = market_intelligence_runner or (lambda question: run_knowledge_retrieval(question, live=True))
+    synthesize = synthesis_runner or run_grounded_synthesis
     builder = StateGraph(WorkflowState)
     builder.add_node("load_candidate", load_candidate_node)
     builder.add_node("discover_jobs", _discovery_node(run_discovery))
@@ -85,6 +91,7 @@ def build_workflow(
     builder.add_node("enrich_esco", _esco_node(make_esco_client))
     builder.add_node("research_companies", _company_research_node(make_company_researcher))
     builder.add_node("retrieve_market_intelligence", _market_intelligence_node(retrieve_market))
+    builder.add_node("synthesize_career_intelligence", _synthesis_node(synthesize))
     builder.add_node("generate_report", generate_report_node)
     builder.add_node("finalize", finalize_node)
 
@@ -104,7 +111,8 @@ def build_workflow(
     builder.add_edge("note_no_recommendations", "enrich_esco")
     builder.add_edge("enrich_esco", "research_companies")
     builder.add_edge("research_companies", "retrieve_market_intelligence")
-    builder.add_edge("retrieve_market_intelligence", "generate_report")
+    builder.add_edge("retrieve_market_intelligence", "synthesize_career_intelligence")
+    builder.add_edge("synthesize_career_intelligence", "generate_report")
     builder.add_edge("generate_report", "finalize")
     builder.add_edge("finalize", END)
     return builder.compile()
@@ -494,6 +502,45 @@ def _empty_market_intelligence(status: str) -> dict:
     }
 
 
+def _synthesis_node(synthesize: Callable[..., dict]):
+    def synthesize_node(state: WorkflowState) -> dict:
+        if (state.get("offline", False) or not state.get("llm_synthesis_enabled", False)
+                or not state.get("allow_live_llm_synthesis", False)):
+            return _mark(state, "synthesize_career_intelligence",
+                         intelligence_synthesis=_empty_synthesis("skipped_opt_in_required"))
+        market = state.get("market_intelligence", _empty_market_intelligence("skipped"))
+        candidate = state.get("candidate")
+        if not candidate or not market.get("evidence"):
+            return _mark(state, "synthesize_career_intelligence",
+                         intelligence_synthesis=_empty_synthesis("unavailable_no_evidence"))
+        recommendations = state.get("recommendations", [])
+        review = _potential_matches_requiring_review(state.get("matching"), candidate)
+        try:
+            outcome = synthesize(market, candidate, recommendations, review)
+            if not isinstance(outcome, dict):
+                outcome = _empty_synthesis("failed_invalid_response")
+        except Exception as exc:
+            outcome = _empty_synthesis("failed")
+            outcome["error"] = f"Synthesis request failed ({type(exc).__name__}); deterministic intelligence remains available."
+        warnings = list(state.get("warnings", []))
+        nonfatal_errors = list(state.get("nonfatal_errors", []))
+        if outcome.get("status") in {"failed", "unavailable"}:
+            reason = outcome.get("error") or "No sufficiently complete, traceable market passages were available."
+            warnings.append("LLM career-intelligence synthesis was unavailable; deterministic report sections were retained.")
+            nonfatal_errors.append(f"LLM synthesis: {reason}")
+        return _mark(state, "synthesize_career_intelligence", intelligence_synthesis=outcome,
+                     warnings=warnings, nonfatal_errors=nonfatal_errors)
+    return synthesize_node
+
+
+def _empty_synthesis(status: str) -> dict:
+    return {
+        "status": status, "generation_mode": "deterministic_fallback", "model": None,
+        "request_count": 0, "request_limit": 1, "market_intelligence": [],
+        "personalized_career_intelligence": [], "error": None, "failure_stage": None,
+    }
+
+
 def _empty_esco_result(status: str) -> dict:
     return {
         "status": status, "language": ESCO_LANGUAGE, "lookup_count": 0,
@@ -631,6 +678,8 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         "allow_live_company_research": state.get("allow_live_company_research", False),
         "market_intelligence_enabled": state.get("market_intelligence_enabled", False),
         "allow_live_market_intelligence": state.get("allow_live_market_intelligence", False),
+        "llm_synthesis_enabled": state.get("llm_synthesis_enabled", False),
+        "allow_live_llm_synthesis": state.get("allow_live_llm_synthesis", False),
         "job_data_source": "synthetic_fixtures" if state.get("offline", False) else "live_providers",
         "provider_diagnostics": provider_diagnostics,
     }
@@ -640,6 +689,7 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         "discovered_jobs": len(discovery.jobs) if discovery else 0,
         "evaluated_jobs": len(matching.ranked_matches) + len(matching.excluded_jobs) if matching else 0,
         "score_interpretation": "Indicative alignment based on available profile and job evidence; not hiring probability or verified qualification.",
+        "evidence_coverage_interpretation": "Percentage of weighted matching signals with evidence available for evaluation; it is not a measure of full employer requirement fulfillment, qualification, or hiring probability.",
         "recommendations": [_serialize_match(match, candidate) for match in recommendations],
         "potential_matches_requiring_review": _potential_matches_requiring_review(matching, candidate),
         "non_recommendations": _serialize_non_recommendations(matching, candidate),
@@ -647,6 +697,7 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         "company_research": state.get("company_research", _empty_company_research("skipped")),
         "market_intelligence": market_intelligence,
         "personalized_career_intelligence": personalized_intelligence,
+        "intelligence_synthesis": state.get("intelligence_synthesis", _empty_synthesis("skipped_opt_in_required")),
         "workflow": {
             "status": state.get("workflow_status", "running"),
             "started_at": started_at,
@@ -800,6 +851,71 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         lines.append(f"- Limitation: {limitation}")
     if personalized_intelligence.get("limitations"):
         lines.append("")
+    synthesis = report_data["intelligence_synthesis"]
+    lines.extend(["### Grounded LLM Synthesis", "", f"- Status: {synthesis.get('status', 'skipped')}",
+                  f"- Provenance: {synthesis.get('generation_mode', 'deterministic_fallback')}",
+                  f"- Model requests: {synthesis.get('request_count', 0)} (maximum {synthesis.get('request_limit', 1)})"])
+    if synthesis.get("error"):
+        lines.append(f"- Note: {synthesis['error']}")
+    if synthesis.get("failure_stage"):
+        lines.append(f"- Diagnostic stage: {synthesis['failure_stage']}")
+    for section_key, section_title in (("market_intelligence", "Market Intelligence"),
+                                       ("personalized_career_intelligence", "Personalized Career Intelligence")):
+        paragraphs = synthesis.get(section_key, [])
+        if paragraphs:
+            lines.extend(["", f"**{section_title}**", ""])
+        for paragraph in paragraphs:
+            lines.append(paragraph["text"])
+            citations = paragraph.get("citations")
+            if isinstance(citations, list):
+                for citation in citations:
+                    kind = citation.get("kind")
+                    reference_id = citation.get("reference_id", "")
+                    if kind == "market_source":
+                        source = citation
+                        page = source.get("page_number")
+                        page_num = _normalize_citation_integer(page)
+                        page_label = f", PDF page {page_num}" if page_num else ""
+                        publisher_year = source.get("publisher", "Not provided")
+                        year = source.get("publication_year", "Not provided")
+                        geographic_scope = {
+                            "Germany_focused": "Germany-focused", "international_global": "international/global",
+                        }.get(source.get("geographic_scope"), "scope not verified")
+                        url = source.get("source_url")
+                        title = source.get("document_title", source.get("evidence_id", "Source"))
+                        if isinstance(url, str) and url.startswith(("https://", "http://")):
+                            lines.append(f"Market source: [{title}]({url}), {publisher_year} ({year}){page_label}, {geographic_scope} [ID: {source.get('evidence_id')}].")
+                        else:
+                            lines.append(f"Market source: {title}{page_label}, {geographic_scope} [ID: {source.get('evidence_id')}].")
+                    elif kind == "job_posting":
+                        title = citation.get("document_title", "Job posting")
+                        company = citation.get("company")
+                        label = f"{title} — {company}" if company else title
+                        url = citation.get("source_url")
+                        if isinstance(url, str) and url.startswith(("https://", "http://")):
+                            lines.append(f"Job posting: [{label}]({url}) [Reference: {reference_id}].")
+                        else:
+                            lines.append(f"Job posting: {label} [Reference: {reference_id}; URL unavailable].")
+                    elif kind == "candidate_profile":
+                        lines.append(f"Candidate profile: {citation.get('label', 'profile evidence')} [Reference: {reference_id}].")
+            else:
+                # Compatibility for reports generated before typed citations.
+                for source in paragraph.get("sources", []):
+                    page = source.get("page_number")
+                    page_num = _normalize_citation_integer(page)
+                    page_label = f", PDF page {page_num}" if page_num else ""
+                    publisher_year = source.get("publisher", "Not provided")
+                    year = source.get("publication_year", "Not provided")
+                    geographic_scope = {
+                        "Germany_focused": "Germany-focused", "international_global": "international/global",
+                    }.get(source.get("geographic_scope"), "scope not verified")
+                    url = source.get("source_url")
+                    title = source.get("document_title", source.get("evidence_id", "Source"))
+                    if isinstance(url, str) and url.startswith(("https://", "http://")):
+                        lines.append(f"Source: [{title}]({url}), {publisher_year} ({year}){page_label}, {geographic_scope} [ID: {source.get('evidence_id')}].")
+                    else:
+                        lines.append(f"Source: {title}{page_label}, {geographic_scope} [ID: {source.get('evidence_id')}].")
+            lines.append("")
     if market.get("status") in {"skipped_offline", "skipped_disabled", "skipped_no_candidate"}:
         lines.append("Market evidence retrieval was not run; no findings are inferred.")
     elif not market.get("evidence"):
@@ -829,7 +945,11 @@ def create_report(state: WorkflowState) -> tuple[str, dict]:
         lines.append(f"- Retrieval issue: {error}")
     if market.get("errors"):
         lines.append("")
-    lines.extend(["", "## Recommendations", "", f"**Score interpretation:** {report_data['score_interpretation']}", ""])
+    lines.extend([
+        "", "## Recommendations", "",
+        f"**Score interpretation:** {report_data['score_interpretation']}",
+        f"**Matching evidence coverage:** {report_data['evidence_coverage_interpretation']}", "",
+    ])
     if recommendations:
         for index, match in enumerate(recommendations, start=1):
             lines.extend(_match_markdown(index, match, candidate))
@@ -866,6 +986,10 @@ def _serialize_match(match: JobMatch, candidate: CandidateProfile | None = None)
         "job": match.job.model_dump(mode="json"),
         "score": match.score,
         "evidence_coverage": match.evidence_coverage,
+        "career_direction": {
+            "status": match.career_direction_status,
+            "evidence": match.career_direction_evidence,
+        },
         "support_status": match.support_status.value,
         "strengths": match.strengths,
         "gaps": match.gaps,
@@ -875,7 +999,7 @@ def _serialize_match(match: JobMatch, candidate: CandidateProfile | None = None)
         "seniority_status": "unknown" if seniority is None or seniority.score is None else seniority.score,
         "uncertainties": match.unresolved_requirements,
         "warnings": match.recommendation_warnings,
-        "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
+        "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate, match.job.title),
     }
 
 
@@ -899,8 +1023,9 @@ def _serialize_non_recommendations(matching: MatchingResult | None, candidate: C
         items.append({
             "job": match.job.model_dump(mode="json"), "score": match.score,
             "evidence_coverage": match.evidence_coverage, "support_status": match.support_status.value,
+            "career_direction": {"status": match.career_direction_status, "evidence": match.career_direction_evidence},
             "reasons": reasons, "gaps": match.gaps, "warnings": match.recommendation_warnings,
-            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
+            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate, match.job.title),
         })
     items.extend({
         "job": item.job.model_dump(mode="json"), "score": item.score,
@@ -927,8 +1052,9 @@ def _potential_matches_requiring_review(matching: MatchingResult | None, candida
         result.append({
             "job": match.job.model_dump(mode="json"), "score": match.score,
             "evidence_coverage": match.evidence_coverage, "support_status": match.support_status.value,
+            "career_direction": {"status": match.career_direction_status, "evidence": match.career_direction_evidence},
             "reasons": list(dict.fromkeys(reasons)),
-            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate),
+            "requirements_to_verify": requirements_to_verify(match.job.description or "", candidate, match.job.title),
         })
     return result
 
@@ -941,7 +1067,8 @@ def _match_markdown(index: int, match: JobMatch, candidate: CandidateProfile | N
         f"- Location: {job.location}{f', {job.country}' if job.country else ''}",
         f"- Source: [{job.source}]({job.source_url})" if job.source_url else f"- Source: {job.source} (URL not provided)",
         f"- Score: {match.score}/100" if match.score is not None else "- Score: unavailable",
-        f"- Evidence coverage: {match.evidence_coverage}%",
+        f"- Matching evidence coverage: {match.evidence_coverage}% of evaluated signals",
+        f"- Career-direction alignment: {match.career_direction_status} ({'; '.join(match.career_direction_evidence) or 'not assessed'})",
         f"- Work model: {job.work_model.value}",
         f"- Geographic status: {match.geographic_status.value if match.geographic_status else 'not required'}",
         f"- Strengths: {'; '.join(match.strengths[:4]) or 'none recorded'}",
@@ -949,7 +1076,7 @@ def _match_markdown(index: int, match: JobMatch, candidate: CandidateProfile | N
         f"- Seniority: {'; '.join(seniority.evidence) if seniority and seniority.evidence else 'unknown or unsupported'}",
         f"- Uncertainties: {'; '.join(match.unresolved_requirements) or 'none recorded'}",
     ]
-    requirements = requirements_to_verify(job.description or "", candidate)
+    requirements = requirements_to_verify(job.description or "", candidate, job.title)
     if requirements:
         lines.append("- Requirements to verify:")
         for requirement in requirements:

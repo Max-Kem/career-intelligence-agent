@@ -1,0 +1,60 @@
+{
+  "candidate_id": "synthetic-profile-d",
+  "name": "SYNTHETIC Profile D - Junior Data Analyst",
+  "summary": "SYNTHETIC early-career candidate with approximately 2 years of data reporting and analysis experience, using SQL, Python and Power BI to prepare reliable reports and communicate findings to business stakeholders.",
+  "skills": [
+    "SQL",
+    "Python",
+    "Power BI",
+    "Data cleaning",
+    "Data analysis",
+    "Reporting",
+    "Dashboard development",
+    "Stakeholder communication"
+  ],
+  "professional_experience": [
+    {
+      "title": "Junior Reporting Analyst (Dec 2024-present)",
+      "organization": "SYNTHETIC employer - retail operations company",
+      "responsibilities": [
+        "Write SQL queries and use Python with pandas to clean, validate and combine weekly sales and inventory extracts; log data-quality issues for review.",
+        "Maintain Power BI dashboards and recurring operational reports, documenting metric definitions and checking totals against source files before publication.",
+        "Discuss reporting needs with sales and operations stakeholders, clarify unusual results and present concise trend summaries; automated a recurring data-preparation step that reduced preparation time by about 3 hours per month."
+      ]
+    }
+  ],
+  "years_experience": 2.0,
+  "education": [
+    {
+      "qualification": "Bachelor of Science (2020–2024)",
+      "field": "Business Analytics",
+      "institution": "SYNTHETIC University of Applied Sciences"
+    }
+  ],
+  "desired_job_titles": [
+    "Junior Data Analyst",
+    "BI Analyst",
+    "Reporting Analyst"
+  ],
+  "career_interests": [
+    "Business intelligence and reporting",
+    "Practical data analysis",
+    "Improving data quality and reporting processes"
+  ],
+  "preferred_industries": [
+    "Retail",
+    "Business services",
+    "Technology"
+  ],
+  "seniority_preferences": ["junior", "entry-level"],
+  "country_preferences": ["DE"],
+  "location_preferences": ["Germany"],
+  "work_model_preferences": ["hybrid", "remote"],
+  "employment_type_preferences": ["full-time"],
+  "required_preferences": {
+    "countries": ["DE"],
+    "work_models": [],
+    "employment_types": [],
+    "seniority": []
+  }
+}

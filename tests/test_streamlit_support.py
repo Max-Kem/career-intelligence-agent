@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -10,7 +11,9 @@ from career_agent.streamlit_support import (
     build_candidate_profile,
     build_workflow_input,
     candidate_review_summary,
+    citation_presentation,
     confirmation_is_current,
+    compose_experience_title,
     dashboard_view,
     enrichment_message,
     input_fingerprint,
@@ -21,10 +24,15 @@ from career_agent.streamlit_support import (
     parse_lines,
     profile_completeness,
     recommendation_content,
+    primary_reasons,
+    job_context_label,
+    synthesis_presentation,
     readable_requirement,
     recommendation_link,
+    job_posting_highlights,
     report_download_payloads,
     reset_session_state,
+    split_experience_title,
 )
 
 
@@ -48,6 +56,54 @@ def test_custom_profile_construction_uses_candidate_model_and_germany_hard_requi
     assert candidate.years_experience is None
     assert candidate.education == []
     assert candidate.professional_experience[0].responsibilities
+
+
+def test_multiple_experience_entries_keep_titles_and_add_their_own_dates():
+    candidate = build_candidate_profile(valid_fields(professional_experience=[
+        {"title": "Data Analyst", "start_date": "2021-01", "end_date": "2022-06", "responsibilities": ["Built reports."]},
+        {"title": "AI Project Lead", "start_date": "2022-07", "ongoing": True, "responsibilities": ["Delivered a pilot."]},
+    ]))
+
+    assert [item.title for item in candidate.professional_experience] == [
+        "Data Analyst (2021-01 - 2022-06)",
+        "AI Project Lead (2022-07 - Present)",
+    ]
+
+
+def test_experience_dates_are_optional_and_ongoing_roles_show_present():
+    candidate = build_candidate_profile(valid_fields(professional_experience=[
+        {"title": "Independent analysis project", "responsibilities": ["Reviewed survey data."]},
+        {"title": "Current analyst", "start_date": "Jan 2024", "ongoing": True, "responsibilities": ["Prepare monthly reports."]},
+    ]))
+
+    assert candidate.professional_experience[0].title == "Independent analysis project"
+    assert candidate.professional_experience[1].title == "Current analyst (Jan 2024 - Present)"
+
+
+def test_existing_dated_titles_split_and_recompose_without_duplicate_dates():
+    title = "Digital Transformation Consultant (Jul 2019-Oct 2023)"
+    clean_title, start_date, end_date, ongoing = split_experience_title(title)
+
+    assert (clean_title, start_date, end_date, ongoing) == (
+        "Digital Transformation Consultant", "Jul 2019", "Oct 2023", False,
+    )
+    assert compose_experience_title(clean_title, start_date, end_date) == (
+        "Digital Transformation Consultant (Jul 2019 - Oct 2023)"
+    )
+    assert compose_experience_title(title, "2019-07", "2023-10") == title
+    assert split_experience_title("AI Consultant (Nov 2023-present)") == (
+        "AI Consultant", "Nov 2023", "", True,
+    )
+
+
+def test_experience_date_fields_are_cleared_when_session_is_reset():
+    state = {
+        "experience_start_date_0": "2023-01",
+        "experience_end_date_0": "2024-01",
+        "experience_ongoing_0": True,
+    }
+    reset_session_state(state)
+    assert not any(key.startswith(("experience_start_date_", "experience_end_date_", "experience_ongoing_")) for key in state)
 
 
 @pytest.mark.parametrize("override", [
@@ -102,24 +158,26 @@ def test_demo_workflow_input_forces_all_external_integrations_off():
     candidate = build_candidate_profile(valid_fields())
     state = build_workflow_input(candidate, {
         "mode": "demo", "allow_live_esco": True, "allow_live_company_research": True,
-        "allow_live_rag": True, "queries": 3, "pages": 1, "top_n": 5,
+        "allow_live_rag": True, "allow_llm_synthesis": True, "queries": 3, "pages": 1, "top_n": 5,
     })
     assert state["offline"] is True
     assert state["esco_enabled"] is False and state["allow_live_esco"] is False
     assert state["company_research_enabled"] is False and state["allow_live_company_research"] is False
     assert state["market_intelligence_enabled"] is False and state["allow_live_market_intelligence"] is False
+    assert state["llm_synthesis_enabled"] is False and state["allow_live_llm_synthesis"] is False
 
 
 def test_live_workflow_input_requires_explicit_switches_and_bounds_search():
     candidate = build_candidate_profile(valid_fields())
     state = build_workflow_input(candidate, {
         "mode": "live", "allow_live_esco": True, "allow_live_company_research": False,
-        "allow_live_rag": True, "queries": 2, "pages": 2, "top_n": 4,
+        "allow_live_rag": True, "allow_llm_synthesis": True, "queries": 2, "pages": 2, "top_n": 4,
     })
     assert state["offline"] is False
     assert state["esco_enabled"] is True and state["allow_live_esco"] is True
     assert state["company_research_enabled"] is False
     assert state["market_intelligence_enabled"] is True
+    assert state["llm_synthesis_enabled"] is True and state["allow_live_llm_synthesis"] is True
     with pytest.raises(ValueError, match="limits"):
         build_workflow_input(candidate, {"mode": "live", "queries": 4})
 
@@ -153,6 +211,159 @@ def test_zero_recommendation_and_review_match_dashboard_presentation():
     assert view["potential_matches"][0]["support_status"] == "provisional"
     assert view["discovered_jobs"] == 4 and view["evaluated_jobs"] == 4
     assert view["market_intelligence"]["status"] == "skipped_offline"
+    assert view["status_label"] == "Completed; no roles met the recommendation criteria."
+    assert view["data_source_label"] == "Live job providers"
+
+
+def test_saved_live_zero_recommendation_case_has_truthful_dashboard_metrics():
+    report_path = Path(__file__).resolve().parents[1] / "reports/streamlit/career_report_custom_20261112T092129298274Z.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    view = dashboard_view({"workflow_status": report["workflow"]["status"], "report_data": report})
+    assert view["discovered_jobs"] == 37
+    assert view["evaluated_jobs"] == 37
+    assert view["recommendations"] == []
+    assert len(view["potential_matches"]) == 8
+    assert "no roles met" in view["status_label"].casefold()
+    assert view["data_source_label"] == "Live job providers"
+
+
+def test_diagnostic_summary_is_plain_language_and_keeps_demo_skips_nonfatal():
+    view = dashboard_view({"report_data": {
+        "search_scope": {"offline": True, "provider_diagnostics": {"provider_counts": {"synthetic": 5}, "errors": {}}},
+        "discovered_jobs": 5, "evaluated_jobs": 5,
+        "recommendations": [{"score": 90}], "potential_matches_requiring_review": [],
+        "market_intelligence": {"status": "skipped_offline"},
+        "intelligence_synthesis": {"status": "skipped_offline"},
+        "esco_enrichment": {"status": "skipped_offline"},
+        "company_research": {"status": "skipped_offline"},
+        "workflow": {"status": "completed_with_warnings", "warnings": ["Synthetic fixture jobs were used."], "errors": []},
+    }})
+    summary = view["diagnostics"]["summary"]
+    assert summary["job_discovery"] == "Completed successfully."
+    assert summary["matching"] == "Evaluated 5 jobs."
+    assert "1 role qualified" in summary["recommendations"]
+    assert all(summary[key] == "Not run because Demo Mode is offline."
+               for key in ("market_intelligence", "llm_synthesis", "esco", "company_research"))
+    assert summary["warnings"] == ["Synthetic fixture jobs were used."]
+
+
+def test_partial_esco_status_is_human_readable_and_timeout_diagnostics_remain_visible():
+    view = dashboard_view({"workflow_status": "completed_with_warnings", "report_data": {
+        "search_scope": {"offline": False, "provider_diagnostics": {}},
+        "workflow": {"status": "completed_with_warnings", "nonfatal_errors": ["ESCO Python: ReadTimeout"]},
+        "recommendations": [], "potential_matches_requiring_review": [], "esco_enrichment": {"status": "partial", "lookup_count": 6},
+    }})
+    assert view["enrichment_messages"]["esco"].startswith("ESCO enrichment: Partial")
+    assert "Partially completed" in view["diagnostics"]["summary"]["esco"]
+    assert "ReadTimeout" in " ".join(view["diagnostics"]["summary"]["nonfatal_errors"])
+
+
+def test_primary_reasons_are_limited_and_unmodified_full_evidence_remains_available():
+    item = {"strengths": ["reason one", "reason two", "reason three", "reason four"]}
+    assert primary_reasons(item) == ["reason one", "reason two", "reason three"]
+    assert item["strengths"] == ["reason one", "reason two", "reason three", "reason four"]
+    assert primary_reasons({"strengths": [], "reasons": ["review one", "review two", "review three", "review four"]}) == [
+        "review one", "review two", "review three",
+    ]
+
+
+def test_job_highlights_separate_provider_remote_from_posted_location_and_attendance():
+    result = job_posting_highlights({
+        "work_model": "remote",
+        "description": (
+            "<h3>Location</h3><p>This is a full-time position based in Munich or Cologne. "
+            "Following onboarding at our Zurich office for a minimum of one month, you will work from home. "
+            "You will make regular customer visits across the DACH region.</p>"
+            "<h3>Key Responsibilities</h3><ul><li>Run implementations end to end, from planning to go-live.</li>"
+            "<li>Lead delivery teams across customer engagements.</li></ul>"
+            "<h3>What You Bring</h3><p>Four years of enterprise implementation experience required.</p>"
+            "<h3>Bonus Points</h3><p>ERP implementation experience is a bonus.</p>"
+        ),
+    })
+    assert result["provider_work_model"] == "remote"
+    items = result["items"]
+    assert len(items) <= 6
+    text = " ".join(item["text"] for item in items)
+    assert "Munich or Cologne" in text
+    assert "Zurich" in text
+    assert "customer visits" in text
+    assert any(item["category"] == "Preferred" and "bonus" in item["text"].casefold() for item in items)
+    assert any(item["category"] in {"Responsibility", "Qualification", "Required"} for item in items)
+
+
+def test_job_highlights_do_not_infer_facts_from_missing_or_marketing_only_descriptions():
+    missing = job_posting_highlights({"work_model": "remote", "description": None})
+    assert missing["provider_work_model"] == "remote"
+    assert missing["description_available"] is False
+    assert missing["items"] == []
+
+    marketing = job_posting_highlights({
+        "description": "<p>We are a fast-growing company with an amazing culture and great benefits.</p>"
+    })
+    assert marketing["items"] == []
+
+
+def test_job_highlights_exclude_benefits_marketing_and_compensation_but_keep_explicit_sections():
+    result = job_posting_highlights({
+        "work_model": "hybrid",
+        "description": (
+            "<p>We are a fast-growing leader with a friendly culture.</p>"
+            "<h3>What You'll Do</h3><ul><li>Rebuild executive reporting and document metric definitions.</li></ul>"
+            "<h3>What You Need to Succeed</h3><ul><li>Expert-level Tableau dashboard development skills.</li></ul>"
+            "<p>Generalist range and real autonomy in a lean remote team.</p>"
+            "<h3>Where You'll Work</h3><p>Based in Berlin with two days onsite each week.</p>"
+            "<h3>Why Shiftmove</h3><p>Dog-friendly office and collaborative culture.</p>"
+            "<h3>Compensation</h3><p>Salary range of €70,000 to €80,000.</p>"
+            "<h3>Benefits</h3><p>Wellbeing budget and free lunch.</p>"
+        ),
+    })
+    assert result["provider_work_model"] == "hybrid"
+    texts = [item["text"] for item in result["items"]]
+    all_text = " ".join(texts).casefold()
+    assert any(item["category"] == "Responsibility" and "executive reporting" in item["text"] for item in result["items"])
+    assert any(item["category"] == "Qualification" and "tableau" in item["text"].casefold() for item in result["items"])
+    assert any(item["category"] == "Location & attendance" and "onsite" in item["text"].casefold() for item in result["items"])
+    assert "dog-friendly" not in all_text and "fast-growing" not in all_text and "salary" not in all_text
+    assert not any("remote team" in item["text"].casefold() and item["category"] == "Location & attendance" for item in result["items"])
+
+
+@pytest.mark.parametrize(("job", "expected"), [
+    ({"location": "Remote", "work_model": "remote"}, "Remote"),
+    ({"location": "Remote - Germany", "work_model": "remote"}, "Remote - Germany"),
+    ({"location": "Berlin", "work_model": "hybrid"}, "Berlin | Hybrid"),
+    ({"location": None, "work_model": None}, "Location not provided | Unknown"),
+])
+def test_job_context_label_avoids_repeated_location_and_work_model(job, expected):
+    assert job_context_label(job) == expected
+
+
+@pytest.mark.parametrize(
+    ("synthesis", "demo", "kind", "message_fragment"),
+    [
+        ({"status": "succeeded", "generation_mode": "llm_generated"}, False, "success", "generated from retrieved evidence"),
+        ({"status": "failed", "generation_mode": "deterministic_fallback"}, False, "info", "Deterministic guidance"),
+        ({"status": "skipped_offline", "generation_mode": "deterministic_fallback"}, True, "hidden", "Deterministic guidance"),
+        ({"status": "skipped_disabled"}, False, "caption", "was not requested"),
+    ],
+)
+def test_synthesis_presentation_distinguishes_live_success_fallback_and_demo(
+    synthesis, demo, kind, message_fragment,
+):
+    presentation = synthesis_presentation(synthesis, demo)
+    assert presentation["kind"] == kind
+    assert message_fragment in presentation["message"]
+
+
+def test_dashboard_diagnostics_summarize_saved_live_statuses():
+    report_path = Path(__file__).resolve().parents[1] / "reports/streamlit/career_report_custom_20261112T092129298274Z.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    view = dashboard_view({"workflow_status": report["workflow"]["status"], "report_data": report})
+    summary = view["diagnostics"]["summary"]
+    assert summary["job_discovery"] == "Completed successfully."
+    assert summary["matching"] == "Evaluated 37 jobs."
+    assert "No roles qualified" in summary["recommendations"]
+    assert summary["market_intelligence"].startswith("Completed successfully.")
+    assert summary["llm_synthesis"].startswith("Could not complete;")
 
 
 def test_reset_clears_all_profile_dynamic_review_result_and_download_state():
@@ -268,7 +479,7 @@ def test_demo_status_is_friendly_but_raw_status_and_warnings_remain_in_diagnosti
 
     problematic = {**result, "errors": ["Provider failed."], "warnings": [warning, "Tavily timed out."]}
     visible = dashboard_view(problematic)
-    assert visible["status_label"] == "Completed with warnings"
+    assert visible["status_label"] == "Completed with warnings."
     assert visible["warnings"] == [warning, "Tavily timed out."]
     assert visible["errors"] == ["Provider failed."]
 
@@ -294,6 +505,32 @@ def test_dashboard_uses_plain_offline_enrichment_messages_and_preserves_raw_stat
     assert "ESCO enrichment is disabled" in view["enrichment_messages"]["esco"]
     assert "Company research is disabled" in view["enrichment_messages"]["company_research"]
     assert set(view["diagnostics"]["enrichment_statuses"].values()) == {"skipped_offline"}
+    assert view["data_source_label"] == "Synthetic demo jobs"
+
+
+@pytest.mark.parametrize(("citation", "kind", "label", "ref"), [
+    ({"kind": "market_source", "reference_id": "S2", "document_title": "Skills Forecast",
+      "publisher": "Cedefop", "publication_year": 2025, "page_number": 9,
+      "source_url": "https://example.org/report"}, "market_source", "Market source", "S2"),
+    ({"kind": "candidate_profile", "reference_id": "C2", "label": "documented skills"},
+     "candidate_profile", "Candidate profile evidence", "C2"),
+    ({"kind": "job_posting", "reference_id": "J1", "document_title": "AI Consultant",
+      "company": "Example Co", "source_url": "https://example.org/job"}, "job_posting", "Job posting", "J1"),
+])
+def test_typed_citation_presentation_preserves_evidence_categories(citation, kind, label, ref):
+    presentation = citation_presentation(citation)
+    assert presentation["kind"] == kind
+    assert presentation["label"] == label
+    assert presentation["reference_id"] == ref
+    if kind == "market_source":
+        assert presentation["publisher"] == "Cedefop"
+        assert presentation["page"] == 9
+        assert presentation["url"] == citation["source_url"]
+    elif kind == "job_posting":
+        assert presentation["title"] == "AI Consultant - Example Co"
+        assert presentation["url"] == citation["source_url"]
+    else:
+        assert presentation["url"] is None
 
 
 def test_human_review_summary_displays_missing_optional_fields_as_not_provided():

@@ -13,6 +13,7 @@ from .candidate import CandidateProfile
 from .filtering import country_eligibility
 from .geography import country_from_location, normalize_country_code
 from .models import Eligibility, EmploymentType, Job, WorkModel
+from .requirements_review import critical_requirements_to_verify, primary_role_text, specific_experience_scope
 
 
 class ScoringWeights(BaseModel):
@@ -32,6 +33,7 @@ class ScoringWeights(BaseModel):
 DEFAULT_WEIGHTS = ScoringWeights()
 MINIMUM_MATCH_SCORE = 50
 MIN_EXPERIENCE_SCORE_FOR_SENIORITY_MISMATCH = 70
+MIN_TOTAL_EXPERIENCE_FOR_JUNIOR_SENIOR_EXCEPTION = 5
 
 
 class SupportStatus(str, Enum):
@@ -68,6 +70,8 @@ class JobMatch:
     recommendation_warnings: list[str] = field(default_factory=list)
     recommendation_blockers: list[str] = field(default_factory=list)
     explanation: str = ""
+    career_direction_status: str = "unassessed"
+    career_direction_evidence: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -139,6 +143,23 @@ def match_candidate_to_jobs(
             ))
             continue
         _apply_seniority_preference_gate(candidate, job, scored_match)
+        direction_status, direction_evidence = career_direction_alignment(candidate, job)
+        scored_match.career_direction_status = direction_status
+        scored_match.career_direction_evidence = direction_evidence
+        if direction_status in {"weak", "uncertain"}:
+            scored_match.recommendation_blockers.append(
+                f"Career-direction alignment is {direction_status}: {direction_evidence[0]}"
+            )
+        for requirement in critical_requirements_to_verify(job.description or "", candidate, job.title):
+            label = requirement["requirement"]
+            reason = (
+                f"Material job requirement needs verification ({label}); candidate evidence is "
+                f"{requirement['candidate_evidence_status']}. This is not a finding that the candidate lacks it."
+            )
+            if reason not in scored_match.recommendation_blockers:
+                scored_match.recommendation_blockers.append(reason)
+        if scored_match.recommendation_blockers:
+            scored_match.explanation = " ".join([scored_match.explanation, *scored_match.recommendation_blockers]).strip()
         ranked.append(scored_match)
     ranked.sort(key=lambda match: (match.score is not None, match.score or -1, match.evidence_coverage), reverse=True)
     supported = [
@@ -170,7 +191,7 @@ def score_job(
 
     dimensions = [
         _skills_dimension(required_skills, matched, candidate_skills, w.skills, plain_description),
-        _experience_dimension(candidate, plain_description, w.experience),
+        _experience_dimension(candidate, plain_description, w.experience, job.title),
         _role_dimension(candidate, job, w.role_interests),
         _seniority_dimension(candidate, job, plain_description, w.seniority_qualifications),
         _preference_dimension(candidate, job, w.additional_preferences),
@@ -259,8 +280,8 @@ def _skills_dimension(
     return DimensionScore("skills", weight, score, evidence)
 
 
-def _experience_dimension(candidate: CandidateProfile, description: str, weight: float) -> DimensionScore:
-    required_years = _required_years(description)
+def _experience_dimension(candidate: CandidateProfile, description: str, weight: float, job_title: str = "") -> DimensionScore:
+    required_years = _required_years(primary_role_text(description, job_title))
     if required_years is not None and candidate.years_experience is not None:
         score = _rounded(min(1.0, candidate.years_experience / required_years) * 100) if required_years else 100
         evidence = [f"Candidate reports {candidate.years_experience:g} years; job description asks for {required_years:g} years."]
@@ -300,6 +321,88 @@ def _role_dimension(candidate: CandidateProfile, job: Job, weight: float) -> Dim
     score = _rounded(100 * best)
     evidence = [f"Job title '{job.title}' shares role terms with candidate interest '{best_title}'."] if best else [f"Job title '{job.title}' does not match the listed role interests closely."]
     return DimensionScore("role_interests", weight, score, evidence)
+
+
+def career_direction_alignment(candidate: CandidateProfile, job: Job) -> tuple[str, list[str]]:
+    """Assess occupational fit from target roles, title function, and stated duties.
+
+    This is a conservative qualification gate only; it does not alter a match score.
+    """
+    targets = [_normalize(title) for title in candidate.desired_job_titles if _normalize(title)]
+    if not targets:
+        return "unassessed", ["Candidate target job titles are not documented."]
+    title = _normalize(job.title)
+    description = _normalize(_plain_text(job.description or ""))
+    if not title:
+        return "uncertain", ["Job title is unavailable, so occupational function cannot be assessed."]
+
+    direct_target = next((target for target in targets if target in title), None)
+    if direct_target:
+        return "aligned", [f"Job title matches the stated target role '{direct_target}'."]
+
+    # Seniority is assessed independently. Titles with the same specific
+    # occupational function (for example Junior Data Analyst vs Senior Data
+    # Analyst) remain directionally aligned without relaxing seniority rules.
+    def without_seniority(value: str) -> str:
+        return re.sub(r"\b(?:junior|senior|mid[- ]level|lead|principal|graduate|entry[- ]level)\b", " ", value)
+
+    comparable_title = re.sub(r"\s+", " ", without_seniority(title)).strip()
+    comparable_targets = [re.sub(r"\s+", " ", without_seniority(target)).strip() for target in targets]
+    specific_target = next((target for target in comparable_targets
+                            if len(target.split()) >= 2 and target and target in comparable_title), None)
+    if specific_target:
+        return "aligned", [f"Job title matches the target occupational function '{specific_target}'; seniority is evaluated separately."]
+
+    candidate_functions = " ".join(targets)
+    competing_functions = {
+        "product marketing": "Product marketing is a different primary occupational function from the candidate's stated targets.",
+        "customer success": "Customer success is a different primary occupational function from the candidate's stated targets.",
+        "intralogistics": "Intralogistics is a specialized occupational domain outside the candidate's stated targets.",
+        "robotics": "Robotics is a specialized occupational domain outside the candidate's stated targets.",
+    }
+    for function, reason in competing_functions.items():
+        if function in title and function not in candidate_functions:
+            return "weak", [reason]
+
+    title_has_transformation_function = any(phrase in title for phrase in (
+        "ai transformation", "digital transformation", "transformation consultant",
+    ))
+    title_is_consulting = any(term in title for term in ("consultant", "consulting", "berater", "beratung"))
+    title_is_project_delivery = any(term in title for term in (
+        "project manager", "program manager", "programme manager", "projektmanager",
+    ))
+    context_groups = {
+        "transformation": any(term in description for term in (
+            "transformation", "digital transformation", "ai transformation", "transformation program", "transformation programme",
+            "ai adoption", "ai implementation", "process transformation",
+        )),
+        "process change": any(term in description for term in (
+            "process redesign", "process optimization", "process improvement", "workflow automation",
+            "change management", "organizational change",
+        )),
+        "delivery": any(term in description for term in (
+            "project delivery", "deliver projects", "implementation", "rollout", "go live", "program delivery",
+        )),
+    }
+    supported_context = [label for label, present in context_groups.items() if present]
+
+    if title_has_transformation_function and title_is_consulting:
+        return "aligned", ["The title names transformation consulting, matching the candidate's stated career direction."]
+    if title_has_transformation_function and title_is_project_delivery and supported_context:
+        return "adjacent", [
+            f"The title combines transformation and project delivery; posting duties support {', '.join(supported_context)}."
+        ]
+    if title_is_project_delivery and context_groups["transformation"] and len(supported_context) >= 2:
+        return "adjacent", [
+            f"Project management is supported by duties in {', '.join(supported_context)}, making this a reasonable adjacent path."
+        ]
+    if title_is_project_delivery:
+        return "uncertain", [
+            "A project-management title alone does not establish transformation alignment; the posting duties do not provide enough supporting context."
+        ]
+    if title_has_transformation_function:
+        return "uncertain", ["Transformation wording appears in the title, but the occupational function is not sufficiently aligned or supported by the posting duties."]
+    return "weak", ["The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."]
 
 
 def _seniority_dimension(candidate: CandidateProfile, job: Job, description: str, weight: float) -> DimensionScore:
@@ -404,6 +507,20 @@ def _apply_seniority_preference_gate(candidate: CandidateProfile, job: Job, matc
     )
     match.recommendation_warnings.append(warning)
     experience_dimension = next((item for item in match.dimensions if item.name == "experience"), None)
+    junior_preferences = preferred_levels & {"junior", "entry-level"}
+    has_documented_senior_role = any(
+        re.search(r"\b(senior|lead|principal|director)\b", entry.title, re.I)
+        and not re.search(r"\b(junior|entry[- ]level|graduate)\b", entry.title, re.I)
+        for entry in candidate.professional_experience
+    )
+    if ("senior" in actual_levels and junior_preferences and candidate.years_experience is not None
+            and candidate.years_experience < MIN_TOTAL_EXPERIENCE_FOR_JUNIOR_SENIOR_EXCEPTION
+            and not has_documented_senior_role):
+        match.recommendation_blockers.append(
+            "Senior-level recommendation requires substantial relevant experience; the profile reports "
+            f"{candidate.years_experience:g} total years and documents no prior senior-level role. "
+            "This is not a conclusion that the candidate cannot perform the work."
+        )
     if experience_dimension is None or experience_dimension.score is None or experience_dimension.score < MIN_EXPERIENCE_SCORE_FOR_SENIORITY_MISMATCH:
         observed = "unavailable" if experience_dimension is None or experience_dimension.score is None else f"{experience_dimension.score}/100"
         match.recommendation_blockers.append(
@@ -414,12 +531,21 @@ def _apply_seniority_preference_gate(candidate: CandidateProfile, job: Job, matc
 
 
 def _required_years(text: str) -> float | None:
-    patterns = (
-        r"(?:at least\s+|minimum(?: of)?\s+)?(\d+(?:\.\d+)?)\s*\+?\s*years?\b",
-        r"(\d+)\s*[-–]\s*\d+\s+years?\b",
-    )
-    for pattern in patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
+    for sentence in re.split(r"(?<=[.!?])\s+|\n", text):
+        if specific_experience_scope(sentence):
+            continue
+        # Check ranges before scalar matches: otherwise the upper endpoint can
+        # be mistaken for a minimum (e.g. "5–8 years" -> 8).
+        range_match = re.search(
+            r"\b(\d+(?:\.\d+)?)\s*(?:-|\u2013|\u2014|\bto\b)\s*(\d+(?:\.\d+)?)\s+years?\b",
+            sentence, re.IGNORECASE,
+        )
+        if range_match:
+            return float(range_match.group(1))
+        match = re.search(
+            r"(?:at least\s+|minimum(?: of)?\s+)?(\d+(?:\.\d+)?)\s*\+?\s*years?\b",
+            sentence, re.IGNORECASE,
+        )
         if match:
             return float(match.group(1))
     return None
@@ -432,7 +558,7 @@ def _extract_seniority(text: str) -> set[str]:
     patterns = {
         "junior": r"\b(junior|entry level|graduate|intern)\b",
         "mid-level": r"\b(mid level|mid career|intermediate)\b",
-        "senior": r"\b(senior|sr|lead|principal)\b",
+        "senior": r"\b(senior|sr|lead|principal|principle)\b",
         "director": r"\b(director|vp|vice president|chief|c suite)\b",
     }
     for level, pattern in patterns.items():
@@ -444,9 +570,14 @@ def _extract_seniority(text: str) -> set[str]:
 def _job_seniority(job: Job, description: str = "") -> set[str]:
     """Title is the strongest signal; description fallback requires role context."""
     title_levels = _extract_seniority(job.title)
+    structured_levels = _extract_seniority(job.seniority or "")
+    # "Principle" is a common misspelling of Principal in titles. If provider
+    # seniority independently identifies Director/Executive, retain that higher
+    # level instead of letting the typo award a mid/senior preference match.
+    if re.search(r"\bprinciple\b", _normalize(job.title)) and "director" in structured_levels:
+        return structured_levels
     if title_levels:
         return title_levels
-    structured_levels = _extract_seniority(job.seniority or "")
     if structured_levels:
         return structured_levels
     if job.seniority:

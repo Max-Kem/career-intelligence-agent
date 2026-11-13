@@ -1,0 +1,620 @@
+{
+  "snapshot_kind": "saved_live_mode_historical_snapshot",
+  "historical_snapshot": true,
+  "source_snapshot": {
+    "local_report_filename": "career_report_custom_20261112T184744494533Z.json",
+    "captured_at_utc": "2026-11-12T18:47:44.494533+00:00",
+    "note": "Historical output preserved as recorded; it was not recomputed with later code changes."
+  },
+  "candidate": {
+    "label": "Synthetic Profile D",
+    "summary": "SYNTHETIC early-career candidate with approximately 2 years of data reporting and analysis experience, using SQL, Python and Power BI to prepare reliable reports and communicate findings to business stakeholders.",
+    "target_roles": [
+      "Junior Data Analyst",
+      "BI Analyst",
+      "Reporting Analyst"
+    ],
+    "skills": [
+      "SQL",
+      "Python",
+      "Power BI",
+      "Data cleaning",
+      "Data analysis",
+      "Reporting",
+      "Dashboard development",
+      "Stakeholder communication"
+    ],
+    "years_experience": 2.0,
+    "seniority_preferences": [
+      "junior",
+      "entry-level"
+    ],
+    "education": [
+      {
+        "qualification": "Bachelor of Science",
+        "field": "Business Analytics"
+      }
+    ]
+  },
+  "search": {
+    "mode": "Live Mode",
+    "job_data_source": "live_providers",
+    "queries": [
+      "Junior Data Analyst",
+      "BI Analyst",
+      "Reporting Analyst"
+    ],
+    "providers": [
+      "arbeitnow",
+      "himalayas"
+    ],
+    "provider_counts": {
+      "arbeitnow": 29,
+      "himalayas": 48
+    },
+    "deduplicated_provider_counts": {
+      "arbeitnow": 17,
+      "himalayas": 10
+    },
+    "final_provider_counts": {
+      "arbeitnow": 17,
+      "himalayas": 10
+    },
+    "duplicates_removed": 13,
+    "filter_exclusions": {
+      "keyword": 37,
+      "country": 0,
+      "work_model": 0,
+      "employment_type": 0
+    },
+    "provider_errors": {}
+  },
+  "outcome": {
+    "workflow_status": "completed_no_recommendations",
+    "completed_at_utc": "2026-11-12T18:47:44.494533+00:00",
+    "jobs_evaluated": 27,
+    "recommendation_count": 0,
+    "potential_match_review_count": 7,
+    "non_recommendation_count": 27,
+    "workflow_warnings": [
+      "No discovered jobs met the existing evidence, hard-requirement, and match qualification criteria."
+    ],
+    "workflow_errors": []
+  },
+  "recommendations": [],
+  "potential_matches_requiring_review": [
+    {
+      "job": {
+        "title": "Senior Data Analyst",
+        "company": "SE Ranking",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/se-ranking/jobs/senior-data-analyst?utm_source=api"
+      },
+      "score": 85,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "aligned",
+        "evidence": [
+          "Job title matches the target occupational function 'data analyst'; seniority is evaluated separately."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Experiment design and analysis experience",
+          "category": "specialized_expertise",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Design and assess experiments — judge whether an A/B test is viable in the first place, design it properly when it is, and build a credible pre/post or quasi-experimental read when it isn't"
+        },
+        {
+          "requirement": "Senior-level professional experience",
+          "category": "seniority_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Solid senior-level experience as a data analyst in SaaS — you know NDR, expansion, contraction and MRR as things you've modelled, not terms you've heard"
+        },
+        {
+          "requirement": "SaaS analytics experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Solid senior-level experience as a data analyst in SaaS — you know NDR, expansion, contraction and MRR as things you've modelled, not terms you've heard"
+        },
+        {
+          "requirement": "SQL qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'SQL'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "Expert SQL , Python for the work SQL can't do, and comfort in Looker (or a close equivalent) for getting insight in front of people"
+        },
+        {
+          "requirement": "Advanced data modeling / analytics engineering experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Strong data modelling and analytics engineering — you build the layer everyone else relies on rather than just querying it, with real dbt mileage"
+        },
+        {
+          "requirement": "dbt qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Strong data modelling and analytics engineering — you build the layer everyone else relies on rather than just querying it, with real dbt mileage"
+        }
+      ],
+      "reasons": [
+        "Senior-level recommendation requires substantial relevant experience; the profile reports 2 total years and documents no prior senior-level role. This is not a conclusion that the candidate cannot perform the work.",
+        "Material job requirement needs verification (Experiment design and analysis experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Senior-level professional experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (SaaS analytics experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (SQL qualification); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Advanced data modeling / analytics engineering experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (dbt qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Interim Senior BI Analyst (All Genders)",
+        "company": "Shiftmove",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "contract",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/shiftmove/jobs/interim-senior-bi-analyst-all-genders?utm_source=api"
+      },
+      "score": 57,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "aligned",
+        "evidence": [
+          "Job title matches the stated target role 'bi analyst'."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "Senior-level professional experience",
+          "category": "seniority_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You bring extensive experience in BI or analytics , including at least three years working at a senior level"
+        },
+        {
+          "requirement": "Tableau qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have expert-level Tableau dashboard development skills, including experience redesigning dashboards for executive audiences"
+        },
+        {
+          "requirement": "SQL qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'SQL'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "You have strong SQL skills and hands-on experience working with Snowflake"
+        },
+        {
+          "requirement": "Snowflake qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have strong SQL skills and hands-on experience working with Snowflake"
+        },
+        {
+          "requirement": "dbt qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have practical experience with dbt, including building and maintaining data models, tests and documentation"
+        },
+        {
+          "requirement": "Salesforce qualification",
+          "category": "technical_qualification",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Experience working with Salesforce, HubSpot or NetSuite data models"
+        }
+      ],
+      "reasons": [
+        "Senior-level recommendation requires substantial relevant experience; the profile reports 2 total years and documents no prior senior-level role. This is not a conclusion that the candidate cannot perform the work.",
+        "Material job requirement needs verification (Senior-level professional experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Tableau qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (SQL qualification); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Snowflake qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (dbt qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Junior Software Developer - Python & Web Applications (m/f/d)",
+        "company": "Statista",
+        "location": "Hamburg or Berlin",
+        "country": null,
+        "work_model": "unknown",
+        "employment_type": "full-time",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.com/jobs/companies/statista/junior-software-developer-python-web-applications-hamburg-or-berlin-110396"
+      },
+      "score": 53,
+      "evidence_coverage": 100,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "AWS qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Work closely with our senior Data Engineer and other experienced data professionals who build our analytics products and pipelines, learn hands-on about our AWS cloud environment and ETL processes, and help build reliable data pipelines and PostgreSQL queries"
+        },
+        {
+          "requirement": "Python qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'Python'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "Solid hands-on skills in Python, gained through professional work, internships, research, or your own projects."
+        }
+      ],
+      "reasons": [
+        "Eligibility in required country/countries (DE) is unknown.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (AWS qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Python qualification); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Evidence status: provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "IT Support Analyst",
+        "company": "Goodlord",
+        "location": "Sheffield",
+        "country": null,
+        "work_model": "unknown",
+        "employment_type": "full-time",
+        "source": "arbeitnow",
+        "source_url": "https://www.arbeitnow.co.uk/jobs/companies/goodlord/it-support-analyst-sheffield-178722"
+      },
+      "score": 53,
+      "evidence_coverage": 85,
+      "support_status": "provisional",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [],
+      "reasons": [
+        "Eligibility in required country/countries (DE) is unknown.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Evidence status: provisional."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Data Analyst",
+        "company": "Namecheap, Inc.",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "contract",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/namecheap-inc/jobs/senior-data-analyst?utm_source=api"
+      },
+      "score": 51,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "aligned",
+        "evidence": [
+          "Job title matches the target occupational function 'data analyst'; seniority is evaluated separately."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "At least 8 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 2 years; posting states at least 8.",
+          "posting_evidence": "You will have 5-8 years of experience in analytics, with real experience in SaaS, subscription or e-commerce"
+        },
+        {
+          "requirement": "SaaS analytics experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You will have 5-8 years of experience in analytics, with real experience in SaaS, subscription or e-commerce"
+        },
+        {
+          "requirement": "Experiment design and analysis experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have experience with Python for analysis, solid statistics and A/B testing"
+        },
+        {
+          "requirement": "Tableau qualification",
+          "category": "technical_qualification",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have working experience with Tableau and/or Looker / Looker Studio"
+        },
+        {
+          "requirement": "Looker qualification",
+          "category": "technical_qualification",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "You have working experience with Tableau and/or Looker / Looker Studio"
+        },
+        {
+          "requirement": "Language proficiency: English",
+          "category": "language",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Language proficiency is not documented in the supplied candidate profile; this does not mean the candidate lacks it.",
+          "posting_evidence": "You have fluent English (C1+) and are confident presenting to senior leadership"
+        },
+        {
+          "requirement": "dbt qualification",
+          "category": "technical_qualification",
+          "requirement_type": "preferred",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "Experience with Trino or federated queries, dbt, LLM tools in your analytics workflow, or a background in domains, hosting or web infrastructure is a plus"
+        }
+      ],
+      "reasons": [
+        "Senior-level recommendation requires substantial relevant experience; the profile reports 2 total years and documents no prior senior-level role. This is not a conclusion that the candidate cannot perform the work.",
+        "Senior-level exception requires relevant-experience evidence of at least 70/100; current evidence is 25/100.",
+        "Material job requirement needs verification (At least 8 years of experience); candidate evidence is does_not_meet_requirement. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (SaaS analytics experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Experiment design and analysis experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Tableau qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Looker qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Product Analyst - Pendo (Europe, Remote)",
+        "company": "Intel 471",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "contract",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/intel-471/jobs/product-analyst-pendo-europe-remote?utm_source=api"
+      },
+      "score": 51,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "At least 4 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "not_specified",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 2 years; posting states at least 4.",
+          "posting_evidence": "2-4 years of demonstrable experience in Product Operations, Product Analytics or a similar role."
+        }
+      ],
+      "reasons": [
+        "Senior-level exception requires relevant-experience evidence of at least 70/100; current evidence is 50/100.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (At least 4 years of experience); candidate evidence is does_not_meet_requirement. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    },
+    {
+      "job": {
+        "title": "Senior Analytics Engineer-Commercial Intelligence",
+        "company": "Emma",
+        "location": "Remote",
+        "country": null,
+        "work_model": "remote",
+        "employment_type": "full-time",
+        "source": "himalayas",
+        "source_url": "https://himalayas.app/companies/emma/jobs/senior-analytics-engineer-commercial-intelligence?utm_source=api"
+      },
+      "score": 50,
+      "evidence_coverage": 100,
+      "support_status": "sufficient",
+      "career_direction": {
+        "status": "weak",
+        "evidence": [
+          "The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role."
+        ]
+      },
+      "requirements_to_verify": [
+        {
+          "requirement": "At least 5 years of experience",
+          "category": "professional_experience",
+          "requirement_type": "required",
+          "candidate_evidence_status": "does_not_meet_requirement",
+          "candidate_evidence": "Profile reports 2 years; posting states at least 5.",
+          "posting_evidence": "At least 5 years of experience in Analytics Engineering Strong SQL and dbt skills Solid Python skills."
+        },
+        {
+          "requirement": "Advanced data modeling / analytics engineering experience",
+          "category": "specialized_expertise",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "At least 5 years of experience in Analytics Engineering Strong SQL and dbt skills Solid Python skills."
+        },
+        {
+          "requirement": "Python qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'Python'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "At least 5 years of experience in Analytics Engineering Strong SQL and dbt skills Solid Python skills."
+        },
+        {
+          "requirement": "SQL qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "partially_documented",
+          "candidate_evidence": "Profile mentions 'SQL'; the job-specific level or context is not independently verified.",
+          "posting_evidence": "At least 5 years of experience in Analytics Engineering Strong SQL and dbt skills Solid Python skills."
+        },
+        {
+          "requirement": "dbt qualification",
+          "category": "technical_qualification",
+          "requirement_type": "required",
+          "candidate_evidence_status": "not_documented",
+          "candidate_evidence": "Not documented in the supplied candidate profile; this does not mean the candidate lacks the qualification.",
+          "posting_evidence": "At least 5 years of experience in Analytics Engineering Strong SQL and dbt skills Solid Python skills."
+        }
+      ],
+      "reasons": [
+        "Senior-level recommendation requires substantial relevant experience; the profile reports 2 total years and documents no prior senior-level role. This is not a conclusion that the candidate cannot perform the work.",
+        "Senior-level exception requires relevant-experience evidence of at least 70/100; current evidence is 40/100.",
+        "Career-direction alignment is weak: The job title does not identify the candidate's target function or a supported adjacent transformation-delivery role.",
+        "Material job requirement needs verification (At least 5 years of experience); candidate evidence is does_not_meet_requirement. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Advanced data modeling / analytics engineering experience); candidate evidence is not_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (Python qualification); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (SQL qualification); candidate evidence is partially_documented. This is not a finding that the candidate lacks it.",
+        "Material job requirement needs verification (dbt qualification); candidate evidence is not_documented. This is not a finding that the candidate lacks it."
+      ],
+      "warnings": []
+    }
+  ],
+  "enrichment": {
+    "esco": {
+      "status": "skipped_no_recommendations",
+      "lookups": 0
+    },
+    "company_research": {
+      "status": "skipped_no_recommendations",
+      "companies_researched": 0
+    },
+    "market_intelligence": {
+      "status": "succeeded",
+      "query_count": 3,
+      "evidence_count": 7
+    },
+    "llm_synthesis": {
+      "status": "succeeded",
+      "generation_mode": "llm_generated",
+      "historical_model": "gpt-4o-mini",
+      "request_count": 1,
+      "request_limit": 1,
+      "market_intelligence": [
+        {
+          "text": "The demand for skilled professionals in data analytics and business intelligence roles is significant, particularly in sectors that are increasingly reliant on data-driven decision-making. However, specific demand levels for junior roles versus senior roles cannot be established from the available sources, which primarily discuss broader trends in skill requirements and labor market dynamics.",
+          "focus": "market_finding",
+          "citations": [
+            {
+              "kind": "market_source",
+              "document_title": "Germany - 2025 Skills forecast",
+              "publisher": "European Centre for the Development of Vocational Training (Cedefop)",
+              "publication_year": "2025",
+              "page_number": "9",
+              "geographic_scope": "Germany_focused",
+              "source_url": "https://www.cedefop.europa.eu/en/country-reports/germany-2025-skills-forecast"
+            },
+            {
+              "kind": "market_source",
+              "document_title": "Germany - Digital Decade Country Report 2026",
+              "publisher": "European Commission",
+              "publication_year": "2026",
+              "page_number": "12",
+              "geographic_scope": "Germany_focused",
+              "source_url": "https://digital-strategy.ec.europa.eu/en/factpages/germanys-2026-digital-decade-country-report"
+            }
+          ]
+        }
+      ],
+      "personalized_career_intelligence": [
+        {
+          "text": "The candidate has approximately 2 years of experience in data reporting and analysis, with documented skills in SQL, Python, and Power BI, which align well with the requirements for junior data analyst roles. Their experience includes maintaining dashboards and communicating findings to stakeholders, which is relevant for positions in business intelligence and reporting.",
+          "focus": "candidate_evidence",
+          "citations": [
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "target roles and career interests"
+            },
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "documented skills"
+            },
+            {
+              "kind": "candidate_profile",
+              "document_title": "Candidate profile",
+              "label": "documented experience and years of experience"
+            }
+          ]
+        },
+        {
+          "text": "The potential matches identified, such as the Senior Data Analyst roles at SE Ranking and Namecheap, require substantial experience and specific qualifications that the candidate does not currently meet. These roles emphasize senior-level experience and advanced skills in areas like SaaS analytics and experiment design, which are not documented in the candidate's profile.",
+          "focus": "job_requirement",
+          "citations": [
+            {
+              "kind": "job_posting",
+              "document_title": "Senior Data Analyst",
+              "source_url": "https://himalayas.app/companies/se-ranking/jobs/senior-data-analyst?utm_source=api",
+              "company": "SE Ranking"
+            },
+            {
+              "kind": "job_posting",
+              "document_title": "Senior Data Analyst",
+              "source_url": "https://himalayas.app/companies/namecheap-inc/jobs/senior-data-analyst?utm_source=api",
+              "company": "Namecheap, Inc."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interpretation_and_limitations": [
+    "Zero qualifying recommendations is a valid completed outcome under the existing evidence and qualification rules, not a workflow failure.",
+    "Candidate profile is synthetic; employer and vacancy details are taken from the saved report.",
+    "Match scores are evidence-based alignment indicators, not hiring probabilities or verified hiring decisions.",
+    "Job listings and enrichment results are a historical snapshot; current availability and company information were not rechecked.",
+    "LLM-generated synthesis is preserved verbatim from the historical run and was not rewritten after later wording safeguards.",
+    "Historical requirement labels and synthesis text are preserved as recorded; they were not retroactively corrected. In particular, year ranges may reflect the earlier upper-bound parsing defect, and candidate evidence statuses remain the authoritative recorded distinction between undocumented and explicitly unmet. The preserved synthesis includes the phrase ?does not currently meet?; the underlying recorded diagnostics label several qualifications not_documented, so that historical sentence is not a verified claim of absence."
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "candidate_id": "synthetic-profile-c",
+  "name": "SYNTHETIC Profile C - AI & Digital Transformation Consultant",
+  "summary": "SYNTHETIC candidate: transformation consultant with approximately 7.3 years of experience, including 3 years delivering AI adoption and workflow automation initiatives. Combines consulting, process improvement, project delivery and change management; experience is in applied implementation, not machine-learning engineering.",
+  "skills": [
+    "Stakeholder management",
+    "Project management",
+    "AI adoption",
+    "Workflow automation",
+    "Process optimization",
+    "Change management",
+    "Python scripting",
+    "REST API integration",
+    "Workshop facilitation"
+  ],
+  "professional_experience": [
+    {
+      "title": "Digital Transformation Consultant (Jul 2019-Oct 2023)",
+      "organization": "SYNTHETIC employer - transformation consultancy",
+      "responsibilities": [
+        "Mapped order-to-cash and service processes with client operations teams; documented current-state workflows, pain points and prioritized improvement opportunities.",
+        "Managed delivery plans, risks and stakeholder workshops for process redesign and system rollout; prepared training and change materials for affected teams.",
+        "Supported a redesigned approval workflow pilot that reduced manual handoffs by 18% against the documented baseline across two participating teams."
+      ]
+    },
+    {
+      "title": "AI Transformation Consultant (Nov 2023-present)",
+      "organization": "SYNTHETIC employer - transformation consultancy",
+      "responsibilities": [
+        "Led discovery, use-case prioritization and change planning for AI adoption in service-desk and finance workflows; coordinated business owners, IT and risk stakeholders.",
+        "Built small Python scripts and REST API connections to integrate a hosted generative-AI service with approved ticketing and knowledge tools; delivered prototypes and workflow documentation, not ML models.",
+        "Coordinated a six-week, human-reviewed drafting pilot; 120 anonymized test queries were assessed against agreed quality and escalation criteria, and median draft-preparation time fell 25% from the pilot baseline.",
+        "Prepared user guidance and facilitated adoption sessions; tracked feedback, limitations and follow-up improvements with client teams."
+      ]
+    }
+  ],
+  "years_experience": 7.3,
+  "education": [
+    {
+      "qualification": "Master of Science (2017–2019)",
+      "field": "Business Information Systems",
+      "institution": "SYNTHETIC University of Applied Sciences"
+    }
+  ],
+  "desired_job_titles": [
+    "AI Transformation Consultant",
+    "Digital Transformation Consultant",
+    "AI Project Manager"
+  ],
+  "career_interests": [
+    "Practical AI adoption and implementation",
+    "Digital transformation and process improvement",
+    "Responsible workflow automation",
+    "Change management and project delivery"
+  ],
+  "preferred_industries": [
+    "Consulting",
+    "Enterprise technology",
+    "Manufacturing and business services"
+  ],
+  "seniority_preferences": ["mid-level", "senior"],
+  "country_preferences": ["DE"],
+  "location_preferences": ["Germany"],
+  "work_model_preferences": ["hybrid", "remote"],
+  "employment_type_preferences": ["full-time"],
+  "required_preferences": {
+    "countries": ["DE"],
+    "work_models": [],
+    "employment_types": [],
+    "seniority": []
+  }
+}

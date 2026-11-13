@@ -89,13 +89,18 @@ def _make_clients(openai_api_key: str, pinecone_api_key: str) -> tuple[Any, Any,
     return OpenAI(api_key=openai_api_key), Pinecone(api_key=pinecone_api_key), DenseVectorQuery
 
 
-def create_openai_client(api_key: str) -> Any:
+def create_openai_client(
+    api_key: str, *, timeout: float | None = None, max_retries: int | None = None,
+) -> Any:
     """Construct the existing OpenAI SDK client without exposing its key."""
     try:
         from openai import OpenAI
     except ImportError as exc:
         raise SmokeTestError("OpenAI SDK is missing. Install project requirements first.") from exc
-    return OpenAI(api_key=api_key)
+    options = {"timeout": timeout} if timeout is not None else {}
+    if max_retries is not None:
+        options["max_retries"] = max_retries
+    return OpenAI(api_key=api_key, **options)
 
 
 def create_pinecone_client(api_key: str) -> Any:
@@ -296,6 +301,7 @@ def run_knowledge_retrieval(
         if year is None:
             year = _normalize_publication_year(local.get("publication_year"))
         text = field("chunk_text")
+        passage_complete = isinstance(text, str) and len(text) <= 3000
         matches.append({
             "score": _get(match, "score"),
             "chunk_id": chunk_id,
@@ -308,6 +314,9 @@ def run_knowledge_retrieval(
             "source_url": field("source_url") or local.get("source_url") or "Not provided",
             "geographic_scope": field("geographic_scope") or local.get("geographic_scope") or "Not provided",
             "citation_metadata_source": "pinecone_with_local_manifest_fallback" if used_local_metadata else "pinecone",
+            "source_passage": text if passage_complete else text[:3000] if isinstance(text, str) else None,
+            "source_passage_complete": passage_complete,
+            "source_passage_truncated": isinstance(text, str) and not passage_complete,
             "excerpt": (text[:360].rstrip() + "…") if isinstance(text, str) and len(text) > 360 else text if isinstance(text, str) and text else "Text unavailable",
         })
     return {

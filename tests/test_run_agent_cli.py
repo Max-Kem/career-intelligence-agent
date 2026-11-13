@@ -29,6 +29,7 @@ def test_live_cli_allows_explicit_rag_esco_and_company_research(monkeypatch, cap
     assert run_agent.main([
         "--profile", "a", "--queries", "3", "--pages", "1",
         "--allow-live-rag", "--allow-live-esco", "--allow-live-company-research",
+        "--allow-llm-synthesis",
         "--output-dir", "reports/test-live",
     ]) == 0
     assert captured["offline"] is False
@@ -38,6 +39,8 @@ def test_live_cli_allows_explicit_rag_esco_and_company_research(monkeypatch, cap
     assert captured["esco_enabled"] is True
     assert captured["allow_live_company_research"] is True
     assert captured["company_research_enabled"] is True
+    assert captured["llm_synthesis_enabled"] is True
+    assert captured["allow_live_llm_synthesis"] is True
 
 
 def test_live_rag_remains_opt_in_and_offline_defaults_are_network_free(monkeypatch, capsys):
@@ -61,3 +64,12 @@ def test_offline_can_explicitly_enable_live_rag_without_enabling_esco_or_tavily(
     assert captured["market_intelligence_enabled"] is True
     assert captured["allow_live_esco"] is False
     assert captured["allow_live_company_research"] is False
+
+
+def test_llm_synthesis_requires_live_mode_and_explicit_rag_opt_in(monkeypatch):
+    _fake_workflow(monkeypatch)
+    import pytest
+    with pytest.raises(SystemExit):
+        run_agent.main(["--offline", "--allow-live-rag", "--allow-llm-synthesis"])
+    with pytest.raises(SystemExit):
+        run_agent.main(["--allow-llm-synthesis"])

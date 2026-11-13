@@ -33,12 +33,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--no-company-research", action="store_true", help="Disable Tavily company research.")
     parser.add_argument("--no-market-intelligence", action="store_true", help="Disable Pinecone labour-market evidence retrieval.")
     parser.add_argument("--allow-live-rag", action="store_true", help="Opt in to bounded, read-only OpenAI/Pinecone retrieval in either offline or live discovery mode.")
+    parser.add_argument("--allow-llm-synthesis", action="store_true", help="Opt in to one bounded OpenAI synthesis request in Live Mode; requires --allow-live-rag.")
     parser.add_argument("--esco-language", default="en", help="Language for ESCO concept labels (default: en).")
     args = parser.parse_args(argv)
     if args.allow_live_company_research and args.no_company_research:
         parser.error("--allow-live-company-research cannot be combined with --no-company-research")
     if args.allow_live_esco and args.no_esco:
         parser.error("--allow-live-esco cannot be combined with --no-esco")
+    if args.allow_llm_synthesis and args.offline:
+        parser.error("--allow-llm-synthesis is available only in Live Mode; Demo/offline mode makes no external requests")
+    if args.allow_llm_synthesis and not args.allow_live_rag:
+        parser.error("--allow-llm-synthesis requires --allow-live-rag so it can use retrieved source evidence")
     if not 1 <= args.queries <= 3:
         parser.error("--queries must be between 1 and 3")
     if not 1 <= args.pages <= 5:
@@ -65,6 +70,8 @@ def main(argv: list[str] | None = None) -> int:
         "allow_live_company_research": args.allow_live_company_research,
         "market_intelligence_enabled": args.allow_live_rag and not args.no_market_intelligence,
         "allow_live_market_intelligence": args.allow_live_rag,
+        "llm_synthesis_enabled": args.allow_llm_synthesis,
+        "allow_live_llm_synthesis": args.allow_llm_synthesis,
         "esco_language": args.esco_language,
     })
     print(f"Workflow status: {result.get('workflow_status', 'unknown')}")
