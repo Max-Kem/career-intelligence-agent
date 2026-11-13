@@ -33,27 +33,7 @@ The value proposition is a structured starting point for a career decision: see 
 
 The primary orchestration stack is **LangGraph**. The Streamlit UI collects and validates inputs, asks the user to review the profile, and requires an explicit confirmation before invoking a run. The graph then executes bounded discovery, matching, optional enrichment, report generation and finalization.
 
-```mermaid
-flowchart TD
-    U[Streamlit profile and run settings] --> R[Review profile and confirm]
-    R -->|Run| L[load_candidate: validate profile and limits]
-    C[CLI: scripts/run_agent.py] --> L
-    L --> D[discover_jobs: Arbeitnow and Himalayas, or offline fixtures]
-    D -->|No jobs| NJ[note_no_jobs]
-    D -->|Provider partial failure| PF[note_partial_failure]
-    D -->|Results| M[match_jobs: score, evidence and hard requirements]
-    PF --> M
-    NJ --> S[select_recommendations]
-    M --> S
-    S -->|None qualify| NR[note_no_recommendations]
-    S -->|Selected| E[enrich_esco]
-    NR --> E
-    E --> T[research_companies: Tavily]
-    T --> P[retrieve_market_intelligence: Pinecone]
-    P --> G[synthesize_career_intelligence: optional OpenAI, max 1 request]
-    G --> H[generate_report: Markdown and JSON]
-    H --> F[finalize: status, diagnostics and files]
-```
+![Career Intelligence Agent workflow](docs/workflow.png)
 
 The graph's conditional routes handle invalid profiles, empty discovery results, partial provider failures and zero qualifying recommendations. Provider or enrichment failures are recorded as warnings/nonfatal diagnostics when possible; they do not fabricate evidence or prevent a useful report. ESCO and company research are skipped when there are no recommendations. Market retrieval can still run for a profile when enabled; synthesis requires retrieved evidence and an explicit opt-in.
 
